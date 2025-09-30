@@ -1,4 +1,4 @@
-# SOWK-SIM
+# APPIAN
 
 A production-ready Next.js 14 application with TypeScript, Tailwind CSS, shadcn/ui, Prisma, NextAuth, Redis, and comprehensive testing setup.
 
