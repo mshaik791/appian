@@ -51,8 +51,8 @@ REDIS_URL=redis://localhost:6379
 
 4. Set up the database:
 ```bash
-npm run db:generate
-npm run db:push
+npm run prisma:migrate
+npm run prisma:seed
 ```
 
 5. Start the development server:
@@ -61,6 +61,18 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to view the application.
+
+## Quick Start
+
+```bash
+npm run prisma:migrate
+npm run prisma:seed
+npm run dev
+```
+
+# Login (dev):
+# faculty@appian.dev / Password123!
+# student@appian.dev / Password123!
 
 ## Available Scripts
 
@@ -81,6 +93,9 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 - `npm run db:push` - Push schema to database
 - `npm run db:migrate` - Run database migrations
 - `npm run db:studio` - Open Prisma Studio
+- `npm run prisma:migrate` - Run database migrations
+- `npm run prisma:seed` - Seed database
+- `npm run check-db` - Check database connection
 
 ## Project Structure
 
