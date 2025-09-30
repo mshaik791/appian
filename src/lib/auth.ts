@@ -1,4 +1,6 @@
 import CredentialsProvider from 'next-auth/providers/credentials'
+import { prisma } from './db'
+import bcrypt from 'bcryptjs'
 
 export const authOptions = {
   providers: [
@@ -13,18 +15,27 @@ export const authOptions = {
           return null
         }
 
-        // For development only - in production, implement proper user lookup
-        // This is a placeholder implementation
-        if (credentials.email === 'admin@example.com' && credentials.password === 'password') {
-          return {
-            id: '1',
-            email: credentials.email,
-            name: 'Admin User',
-            role: 'ADMIN',
+        const user = await prisma.user.findUnique({
+          where: {
+            email: credentials.email
           }
+        })
+
+        if (!user) {
+          return null
         }
 
-        return null
+        const isPasswordValid = await bcrypt.compare(credentials.password, user.hashedPassword)
+        
+        if (!isPasswordValid) {
+          return null
+        }
+
+        return {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+        }
       }
     })
   ],
@@ -47,7 +58,7 @@ export const authOptions = {
     }
   },
   pages: {
-    signIn: '/auth/signin',
+    signIn: '/login',
   },
   secret: process.env.NEXTAUTH_SECRET,
 }

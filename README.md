@@ -1,4 +1,4 @@
-# SOWK-SIM
+# Appian
 
 A production-ready Next.js 14 application with TypeScript, Tailwind CSS, shadcn/ui, Prisma, NextAuth, Redis, and comprehensive testing setup.
 
@@ -28,7 +28,7 @@ A production-ready Next.js 14 application with TypeScript, Tailwind CSS, shadcn/
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd sowk-sim
+cd appian
 ```
 
 2. Install dependencies:
@@ -45,7 +45,7 @@ Edit `.env` with your configuration:
 ```env
 NEXTAUTH_SECRET=your-secret-key
 NEXTAUTH_URL=http://localhost:3000
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/sowk
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/appian
 REDIS_URL=redis://localhost:6379
 ```
 
@@ -64,15 +64,26 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 
 ## Quick Start
 
-```bash
-npm run prisma:migrate
-npm run prisma:seed
-npm run dev
-```
+1. **Set up environment variables:**
+   ```bash
+   cp .env.example .env.local
+   # Edit .env.local with your database credentials
+   ```
 
-# Login (dev):
-# faculty@appian.dev / Password123!
-# student@appian.dev / Password123!
+2. **Run database migrations and seed:**
+   ```bash
+   npm run prisma:migrate
+   npm run prisma:seed
+   ```
+
+3. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Login with test accounts:**
+   - Faculty: `faculty@appian.dev` / `Password123!`
+   - Student: `student@appian.dev` / `Password123!`
 
 ## Available Scripts
 
