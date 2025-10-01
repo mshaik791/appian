@@ -69,8 +69,8 @@ export function CaseForm({
       const objectivesJson = JSON.parse(objectives);
       
       onSubmit({
-        title: formData.get('title'),
-        description: formData.get('description'),
+        title: String(formData.get('title') || ''),
+        description: String(formData.get('description') || ''),
         culturalContextJson,
         objectivesJson,
         rubricId: selectedRubricId,
