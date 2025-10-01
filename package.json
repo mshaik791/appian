@@ -22,7 +22,8 @@
     "db:studio": "prisma studio",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "prisma db seed",
-    "check-db": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/check-db.ts"
+    "check-db": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/check-db.ts",
+    "list-cases": "tsx scripts/list-cases.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",
@@ -69,11 +70,12 @@
     "prettier": "^3.6.2",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
+    "tsx": "^4.20.6",
     "tw-animate-css": "^1.4.0",
     "typescript": "^5",
     "vitest": "^3.2.4"
   },
   "prisma": {
-    "seed": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts"
   }
 }
