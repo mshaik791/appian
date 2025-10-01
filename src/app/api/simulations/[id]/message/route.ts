@@ -2,15 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
-import { redis } from '@/lib/redis';
+import { redisClient } from '@/lib/redis';
 import { openai } from '@ai-sdk/openai';
 import { streamText } from 'ai';
 import { z } from 'zod';
-
-// Configure OpenAI with API key
-const openaiClient = openai({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 const messageSchema = z.object({
   message: z.string().min(1, 'Message is required'),
@@ -79,7 +74,7 @@ export async function POST(
 
     // Get conversation history from Redis or build from DB
     const redisKey = `simulation:${simulationId}`;
-    let conversationHistory = await redis.get(redisKey);
+    let conversationHistory = await redisClient.get(redisKey);
 
     if (!conversationHistory) {
       // Build initial conversation history
@@ -119,7 +114,7 @@ export async function POST(
 
     // Stream the response
     const result = await streamText({
-      model: openaiClient('gpt-4o-mini'), // Using a more cost-effective model
+      model: openai('gpt-4o-mini'), // Fixed: use openai directly, not openaiClient
       prompt: fullPrompt,
       maxTokens: 500,
       temperature: 0.7,
@@ -155,10 +150,10 @@ export async function POST(
             timestamp: personaTurn.createdAt,
           });
 
-          await redis.setex(
+          await redisClient.set(
             redisKey,
-            3600, // 1 hour TTL
-            JSON.stringify(conversationHistory)
+            JSON.stringify(conversationHistory),
+            3600 // 1 hour TTL
           );
 
           // Send completion signal

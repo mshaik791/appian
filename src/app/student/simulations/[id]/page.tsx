@@ -214,17 +214,19 @@ export default function SimulationPage({ params }: { params: Promise<{ id: strin
                 {personaTyping ? `${simulation.persona.name} is typing...` : 'Live Chat'}
               </CardTitle>
             </CardHeader>
-            <CardContent className="flex-1 flex flex-col p-0">
+            <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
               <ChatWindow
                 messages={messages}
                 streamingMessage={streamingMessage}
-                className="flex-1"
+                className="flex-1 min-h-0"
               />
-              <MessageInput
-                onSendMessage={handleSendMessage}
-                disabled={sending}
-                placeholder={`Message ${simulation.persona.name}...`}
-              />
+              <div className="p-4 border-t">
+                <MessageInput
+                  onSendMessage={handleSendMessage}
+                  disabled={sending}
+                  placeholder={`Message ${simulation.persona.name}...`}
+                />
+              </div>
             </CardContent>
           </Card>
         </div>
