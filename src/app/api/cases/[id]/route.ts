@@ -2,7 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
-import { updateCaseSchema } from '@/lib/validations';
+import { z } from 'zod';
+
+// Define schema inline to avoid import issues
+const updateCaseSchema = z.object({
+  title: z.string().min(1, 'Title is required').max(200, 'Title too long').optional(),
+  description: z.string().min(1, 'Description is required').max(2000, 'Description too long').optional(),
+  culturalContextJson: z.any().optional(),
+  objectivesJson: z.any().optional(),
+  rubricId: z.string().min(1, 'Rubric is required').optional(),
+});
 
 export async function GET(
   request: NextRequest,
@@ -78,6 +87,7 @@ export async function PATCH(
 
     const { id } = await params;
     const body = await request.json();
+    
     const validatedData = updateCaseSchema.parse(body);
 
     const updatedCase = await prisma.case.update({

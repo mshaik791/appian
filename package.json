@@ -26,9 +26,11 @@
     "list-cases": "tsx scripts/list-cases.ts"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^2.0.42",
     "@auth/prisma-adapter": "^2.10.0",
     "@hookform/resolvers": "^5.2.2",
     "@prisma/client": "^6.16.3",
+    "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-collapsible": "^1.1.12",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-label": "^2.1.7",
@@ -36,6 +38,7 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@types/bcryptjs": "^2.4.6",
     "@types/ioredis": "^4.28.10",
+    "ai": "^5.0.59",
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -43,6 +46,7 @@
     "lucide-react": "^0.544.0",
     "next": "15.5.4",
     "next-auth": "4.24.11",
+    "openai": "^6.0.0",
     "pnpm": "^10.17.1",
     "prisma": "^6.16.3",
     "react": "19.1.0",

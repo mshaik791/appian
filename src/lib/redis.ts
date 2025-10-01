@@ -1,14 +1,17 @@
-import Redis from 'ioredis'
+import Redis from 'ioredis';
 
-const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379')
+const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
+  retryDelayOnFailover: 100,
+  enableReadyCheck: false,
+  maxRetriesPerRequest: null,
+});
 
 redis.on('error', (err) => {
-  console.error('Redis Client Error:', err)
-})
+  console.error('Redis connection error:', err);
+});
 
 redis.on('connect', () => {
-  console.log('Redis Client Connected')
-})
+  console.log('✅ Redis connected');
+});
 
-export default redis
-
+export { redis };
