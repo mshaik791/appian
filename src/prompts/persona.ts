@@ -8,62 +8,45 @@ If the student asks outside scope or violates ethics, gently redirect and clarif
 `.trim();
 
 export interface PersonaDraft {
-  name?: string;
-  age?: number;
-  identity?: string[];
-  context?: string;
-  goals?: string[];
-  nuances?: string[];
-  memoryNotes?: string;
+  name: string;
+  backgroundJson: {
+    age?: number;
+    context?: string;
+    identity?: string[];
+    background?: string;
+  };
+  safetyJson: {
+    blockedTopics?: string[];
+  };
 }
 
-export interface CaseData {
-  title: string;
-  description: string;
-  culturalContextJson: any;
-  objectivesJson: any;
-}
-
-export function buildPersonaPrompt(caseData: CaseData, personaDraft: PersonaDraft): string {
-  const {
-    name = "Persona",
-    age = 30,
-    identity = ["individual"],
-    context = "a professional setting",
-    goals = ["engage authentically"],
-    nuances = ["respectful communication"],
-    memoryNotes = "maintain consistent responses"
-  } = personaDraft;
+export function buildPersonaPrompt(
+  caseData: {
+    title: string;
+    description: string;
+    culturalContextJson: Record<string, unknown>;
+    objectivesJson: unknown[];
+  },
+  personaDraft: PersonaDraft
+): string {
+  const { name, backgroundJson } = personaDraft;
+  
+  // Safe defaults
+  const age = backgroundJson.age || 30;
+  const identity = backgroundJson.identity?.join(', ') || 'individual';
+  const context = backgroundJson.context || caseData.title;
+  const goals = Array.isArray(caseData.objectivesJson) 
+    ? caseData.objectivesJson.join(', ')
+    : 'provide support and guidance';
+  const nuances = caseData.culturalContextJson?.values?.join(', ') || 'respectful communication';
+  const memoryNotes = caseData.culturalContextJson?.languageNotes?.join(', ') || 'standard English';
 
   return personaSystemTemplate
     .replace('{PersonaName}', name)
     .replace('{age}', age.toString())
-    .replace('{identity}', identity.join(', '))
+    .replace('{identity}', identity)
     .replace('{context}', context)
-    .replace('{goals}', goals.join(', '))
-    .replace('{nuances}', nuances.join(', '))
+    .replace('{goals}', goals)
+    .replace('{nuances}', nuances)
     .replace('{memoryNotes}', memoryNotes);
-}
-
-export function generatePersonaBackground(caseData: CaseData): any {
-  // Extract age and identity from case context if available
-  const culturalContext = caseData.culturalContextJson || {};
-  const identity = culturalContext.identity || ['individual'];
-  
-  // Try to extract age from description or use default
-  let age = 30;
-  if (caseData.description.toLowerCase().includes('student')) {
-    age = 20;
-  } else if (caseData.description.toLowerCase().includes('parent')) {
-    age = 35;
-  } else if (caseData.description.toLowerCase().includes('elderly')) {
-    age = 65;
-  }
-
-  return {
-    age,
-    identity,
-    context: caseData.title,
-    background: caseData.description.substring(0, 200) + '...'
-  };
 }

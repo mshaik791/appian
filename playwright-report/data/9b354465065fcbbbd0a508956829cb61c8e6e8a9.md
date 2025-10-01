@@ -1,0 +1,75 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [active]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - navigation [ref=e7]:
+            - button "previous" [disabled] [ref=e8]:
+              - img "previous" [ref=e9]
+            - generic [ref=e11]:
+              - generic [ref=e12]: 1/
+              - generic [ref=e13]: "1"
+            - button "next" [disabled] [ref=e14]:
+              - img "next" [ref=e15]
+          - img
+        - generic [ref=e17]:
+          - generic [ref=e18]:
+            - img [ref=e19]
+            - generic "Latest available version is detected (15.5.4)." [ref=e21]: Next.js 15.5.4
+            - generic [ref=e22]: Turbopack
+          - img
+      - dialog "Runtime PrismaClientKnownRequestError" [ref=e24]:
+        - generic [ref=e27]:
+          - generic [ref=e28]:
+            - generic [ref=e29]:
+              - generic [ref=e30]:
+                - generic [ref=e31]: Runtime PrismaClientKnownRequestError
+                - generic [ref=e32]: Server
+              - generic [ref=e33]:
+                - button "Copy Error Info" [ref=e34] [cursor=pointer]:
+                  - img [ref=e35] [cursor=pointer]
+                - button "No related documentation found" [disabled] [ref=e37]:
+                  - img [ref=e38]
+                - link "Learn more about enabling Node.js inspector for server code with Chrome DevTools" [ref=e40]:
+                  - /url: https://nextjs.org/docs/app/building-your-application/configuring/debugging#server-side-code
+                  - img [ref=e41]
+            - generic [ref=e52]:
+              - paragraph [ref=e53]:
+                - text: "Invalid `"
+                - generic [ref=e54]: "{imported module [project]/appian/src/lib/db.ts [app-rsc] (ecmascript)}"
+                - text: "[\"prisma\"].case.create()` invocation in /Users/hameed/Documents/appian/.next/server/chunks/ssr/[root-of-the-server]__6856734a._.js:143:165 140 }); 141 // TODO: Get the current user ID from session 142 const createdBy = \"temp-user-id\"; // This should come from the session → 143 const newCase = await"
+                - generic [ref=e55]: "{imported module [project]/appian/src/lib/db.ts [app-rsc] (ecmascript)}"
+                - text: "[\"prisma\"].case.create( Foreign key constraint violated on the constraint: `Case_createdBy_fkey`"
+              - button "Show More" [ref=e57] [cursor=pointer]
+          - generic [ref=e59]:
+            - generic [ref=e60]:
+              - paragraph [ref=e61]:
+                - text: Call Stack
+                - generic [ref=e62]: "6"
+              - button "Show 5 ignore-listed frame(s)" [ref=e63] [cursor=pointer]:
+                - text: Show 5 ignore-listed frame(s)
+                - img [ref=e64] [cursor=pointer]
+            - generic [ref=e66]:
+              - generic [ref=e67]: form
+              - generic [ref=e68]: unknown (0:0)
+        - generic [ref=e69]:
+          - generic [ref=e70]: "1"
+          - generic [ref=e71]: "2"
+    - generic [ref=e76] [cursor=pointer]:
+      - button "Open Next.js Dev Tools" [ref=e77] [cursor=pointer]:
+        - img [ref=e78] [cursor=pointer]
+      - generic [ref=e83] [cursor=pointer]:
+        - button "Open issues overlay" [ref=e84] [cursor=pointer]:
+          - generic [ref=e85] [cursor=pointer]:
+            - generic [ref=e86] [cursor=pointer]: "0"
+            - generic [ref=e87] [cursor=pointer]: "1"
+          - generic [ref=e88] [cursor=pointer]: Issue
+        - button "Collapse issues badge" [ref=e89] [cursor=pointer]:
+          - img [ref=e90] [cursor=pointer]
+  - generic [ref=e93]:
+    - 'heading "Application error: a server-side exception has occurred while loading localhost (see the server logs for more information)." [level=2] [ref=e94]'
+    - paragraph [ref=e95]: "Digest: 2954198234"
+```

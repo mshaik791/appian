@@ -1,0 +1,108 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [active]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - navigation [ref=e7]:
+            - button "previous" [disabled] [ref=e8]:
+              - img "previous" [ref=e9]
+            - generic [ref=e11]:
+              - generic [ref=e12]: 1/
+              - generic [ref=e13]: "1"
+            - button "next" [disabled] [ref=e14]:
+              - img "next" [ref=e15]
+          - img
+        - generic [ref=e17]:
+          - generic [ref=e18]:
+            - img [ref=e19]
+            - generic "Latest available version is detected (15.5.4)." [ref=e21]: Next.js 15.5.4
+            - generic [ref=e22]: Turbopack
+          - img
+      - dialog "Runtime PrismaClientKnownRequestError" [ref=e24]:
+        - generic [ref=e27]:
+          - generic [ref=e28]:
+            - generic [ref=e29]:
+              - generic [ref=e30]:
+                - generic [ref=e31]: Runtime PrismaClientKnownRequestError
+                - generic [ref=e32]: Server
+              - generic [ref=e33]:
+                - button "Copy Error Info" [ref=e34] [cursor=pointer]:
+                  - img [ref=e35] [cursor=pointer]
+                - button "No related documentation found" [disabled] [ref=e37]:
+                  - img [ref=e38]
+                - link "Learn more about enabling Node.js inspector for server code with Chrome DevTools" [ref=e40] [cursor=pointer]:
+                  - /url: https://nextjs.org/docs/app/building-your-application/configuring/debugging#server-side-code
+                  - img [ref=e41] [cursor=pointer]
+            - generic [ref=e49]:
+              - paragraph [ref=e50]:
+                - text: "Invalid `"
+                - generic [ref=e51]: "{imported module [project]/appian/src/lib/db.ts [app-rsc] (ecmascript)}"
+                - text: "[\"prisma\"].case.create()` invocation in /Users/hameed/Documents/appian/.next/server/chunks/ssr/[root-of-the-server]__6856734a._.js:143:165 140 }); 141 // TODO: Get the current user ID from session 142 const createdBy = \"temp-user-id\"; // This should come from the session → 143 const newCase = await"
+                - generic [ref=e52]: "{imported module [project]/appian/src/lib/db.ts [app-rsc] (ecmascript)}"
+                - text: "[\"prisma\"].case.create( Foreign key constraint violated on the constraint: `Case_createdBy_fkey`"
+              - button "Show More" [ref=e54] [cursor=pointer]
+          - generic [ref=e55]:
+            - generic [ref=e56]:
+              - paragraph [ref=e58]:
+                - img [ref=e60]
+                - generic [ref=e64]: src/app/faculty/cases/new/actions.ts (43:37) @ <unknown>
+                - button "Open in editor" [ref=e65] [cursor=pointer]:
+                  - img [ref=e67] [cursor=pointer]
+              - generic [ref=e70]:
+                - generic [ref=e72]: 41 | const createdBy = "temp-user-id"; // This should come from the session
+                - generic [ref=e74]: 42 |
+                - generic [ref=e76]: "> 43 | const newCase = await prisma.case.create({"
+                - generic [ref=e78]: "| ^"
+                - generic [ref=e80]: "44 | data: {"
+                - generic [ref=e82]: "45 | title: validatedData.title,"
+                - generic [ref=e84]: "46 | description: validatedData.description,"
+            - generic [ref=e85]:
+              - generic [ref=e86]:
+                - paragraph [ref=e87]:
+                  - text: Call Stack
+                  - generic [ref=e88]: "9"
+                - button "Show 5 ignore-listed frame(s)" [ref=e89] [cursor=pointer]:
+                  - text: Show 5 ignore-listed frame(s)
+                  - img [ref=e90] [cursor=pointer]
+              - generic [ref=e92]:
+                - generic [ref=e93]:
+                  - text: <unknown>
+                  - button "Open <unknown> in editor" [ref=e94] [cursor=pointer]:
+                    - img [ref=e95] [cursor=pointer]
+                - generic [ref=e97]: src/app/faculty/cases/new/actions.ts (43:37)
+              - generic [ref=e98]:
+                - generic [ref=e99]:
+                  - text: createCaseAction
+                  - button "Open createCaseAction in editor" [ref=e100] [cursor=pointer]:
+                    - img [ref=e101] [cursor=pointer]
+                - generic [ref=e103]: src/app/faculty/cases/new/actions.ts (43:19)
+              - generic [ref=e104]:
+                - generic [ref=e105]: form
+                - generic [ref=e106]: <anonymous>
+              - generic [ref=e107]:
+                - generic [ref=e108]:
+                  - text: NewCasePage
+                  - button "Open NewCasePage in editor" [ref=e109] [cursor=pointer]:
+                    - img [ref=e110] [cursor=pointer]
+                - generic [ref=e112]: src/app/faculty/cases/new/page.tsx (50:11)
+        - generic [ref=e113]:
+          - generic [ref=e114]: "1"
+          - generic [ref=e115]: "2"
+    - generic [ref=e120] [cursor=pointer]:
+      - button "Open Next.js Dev Tools" [ref=e121] [cursor=pointer]:
+        - img [ref=e122] [cursor=pointer]
+      - generic [ref=e125] [cursor=pointer]:
+        - button "Open issues overlay" [ref=e126] [cursor=pointer]:
+          - generic [ref=e127] [cursor=pointer]:
+            - generic [ref=e128] [cursor=pointer]: "0"
+            - generic [ref=e129] [cursor=pointer]: "1"
+          - generic [ref=e130] [cursor=pointer]: Issue
+        - button "Collapse issues badge" [ref=e131] [cursor=pointer]:
+          - img [ref=e132] [cursor=pointer]
+  - generic [ref=e135]:
+    - 'heading "Application error: a server-side exception has occurred while loading localhost (see the server logs for more information)." [level=2] [ref=e136]'
+    - paragraph [ref=e137]: "Digest: 2954198234"
+```
