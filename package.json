@@ -24,7 +24,8 @@
         "prisma:seed": "prisma db seed",
         "check-db": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/check-db.ts",
         "list-cases": "tsx scripts/list-cases.ts",
-        "test-competency-selector": "tsx scripts/test-competency-selector.ts"
+        "test-competency-selector": "tsx scripts/test-competency-selector.ts",
+        "test-scenario-selection": "tsx scripts/test-scenario-selection.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.42",

@@ -7,13 +7,15 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { ArrowLeft, MessageCircle, Loader2, BookOpen } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { ArrowLeft, MessageCircle, Loader2, BookOpen, Search, Users } from 'lucide-react';
 
 interface Persona {
   id: string;
   name: string;
   avatarId: string;
   voiceId: string;
+  backgroundJson: Record<string, unknown>;
 }
 
 interface Case {
@@ -22,6 +24,9 @@ interface Case {
   description: string;
   personas: Persona[];
   rubric: {
+    name: string;
+  };
+  competency: {
     name: string;
   };
   learningObjectivesJson: string[];
@@ -37,8 +42,10 @@ export default function CompetencyPage({ params }: { params: Promise<{ id: strin
   const resolvedParams = use(params);
   const [competency, setCompetency] = useState<Competency | null>(null);
   const [cases, setCases] = useState<Case[]>([]);
+  const [filteredCases, setFilteredCases] = useState<Case[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -59,12 +66,13 @@ export default function CompetencyPage({ params }: { params: Promise<{ id: strin
         setCompetency(currentCompetency);
 
         // Fetch cases for this competency
-        const casesResponse = await fetch(`/api/cases?competencyId=${resolvedParams.id}`);
+        const casesResponse = await fetch(`/api/competencies/${resolvedParams.id}/cases`);
         if (!casesResponse.ok) {
           throw new Error('Failed to fetch cases');
         }
         const casesData = await casesResponse.json();
         setCases(casesData);
+        setFilteredCases(casesData);
       } catch (err) {
         console.error('Error fetching data:', err);
         setError('Failed to load competency data');
@@ -75,6 +83,19 @@ export default function CompetencyPage({ params }: { params: Promise<{ id: strin
 
     fetchData();
   }, [resolvedParams.id]);
+
+  // Filter cases based on search query
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredCases(cases);
+    } else {
+      const filtered = cases.filter(caseItem =>
+        caseItem.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        caseItem.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredCases(filtered);
+    }
+  }, [searchQuery, cases]);
 
   const handleStartSimulation = async (caseId: string, personaId: string) => {
     try {
@@ -154,51 +175,78 @@ export default function CompetencyPage({ params }: { params: Promise<{ id: strin
         </div>
       </div>
 
-      {cases.length === 0 ? (
+      {/* Search and Filters */}
+      <div className="mb-6">
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Input
+            type="text"
+            placeholder="Search scenarios..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        {searchQuery && (
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+            Found {filteredCases.length} scenario{filteredCases.length !== 1 ? 's' : ''} matching "{searchQuery}"
+          </p>
+        )}
+      </div>
+
+      {filteredCases.length === 0 ? (
         <div className="text-center py-12">
           <BookOpen className="mx-auto h-12 w-12 text-gray-400 mb-4" />
           <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-            No scenarios available
+            {searchQuery ? 'No scenarios found' : 'No scenarios available'}
           </h3>
           <p className="text-gray-500 dark:text-gray-400">
-            No practice scenarios are available for this competency yet.
+            {searchQuery 
+              ? 'Try adjusting your search terms.'
+              : 'No practice scenarios are available for this competency yet.'
+            }
           </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {cases.map((caseItem) => (
-            <Card key={caseItem.id} className="flex flex-col">
+          {filteredCases.map((caseItem) => (
+            <Card key={caseItem.id} className="flex flex-col hover:shadow-lg transition-shadow duration-200">
               <CardHeader>
-                <CardTitle className="text-xl">{caseItem.title}</CardTitle>
+                <div className="flex items-start justify-between mb-3">
+                  <CardTitle className="text-xl line-clamp-2">{caseItem.title}</CardTitle>
+                  <Badge variant="secondary" className="ml-2 shrink-0">
+                    {caseItem.rubric.name}
+                  </Badge>
+                </div>
                 <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-3">
                   {caseItem.description}
                 </p>
-                <div className="flex items-center gap-2 mt-3">
-                  <Badge variant="secondary">{caseItem.rubric.name}</Badge>
-                </div>
               </CardHeader>
               <CardContent className="flex-grow">
+                {/* Learning Objectives */}
                 {caseItem.learningObjectivesJson && caseItem.learningObjectivesJson.length > 0 && (
                   <div className="mb-4">
-                    <h4 className="font-medium mb-2 text-sm">Learning Objectives:</h4>
+                    <h4 className="font-medium mb-2 text-sm flex items-center gap-2">
+                      <BookOpen className="h-4 w-4" />
+                      Learning Objectives:
+                    </h4>
                     <ul className="text-xs text-gray-600 dark:text-gray-300 space-y-1">
-                      {caseItem.learningObjectivesJson.slice(0, 2).map((objective, index) => (
+                      {caseItem.learningObjectivesJson.map((objective, index) => (
                         <li key={index} className="flex items-start gap-2">
-                          <span className="text-blue-500 mt-1">•</span>
+                          <span className="text-blue-500 mt-1 shrink-0">•</span>
                           <span className="line-clamp-2">{objective}</span>
                         </li>
                       ))}
-                      {caseItem.learningObjectivesJson.length > 2 && (
-                        <li className="text-gray-500 italic">
-                          +{caseItem.learningObjectivesJson.length - 2} more...
-                        </li>
-                      )}
                     </ul>
                   </div>
                 )}
                 
+                {/* Personas */}
                 <div className="mt-auto">
-                  <h4 className="font-medium mb-2 text-sm">Available Personas:</h4>
+                  <h4 className="font-medium mb-2 text-sm flex items-center gap-2">
+                    <Users className="h-4 w-4" />
+                    Available Personas ({caseItem.personas.length}):
+                  </h4>
                   {caseItem.personas.length === 0 ? (
                     <p className="text-sm text-gray-500">No personas available for this scenario.</p>
                   ) : (
@@ -207,15 +255,26 @@ export default function CompetencyPage({ params }: { params: Promise<{ id: strin
                         <div key={persona.id} className="flex items-center justify-between p-2 bg-gray-100 dark:bg-gray-700 rounded-md">
                           <div className="flex items-center gap-3">
                             <Avatar className="h-8 w-8">
-                              <AvatarFallback>{persona.name.charAt(0)}</AvatarFallback>
+                              <AvatarFallback className="text-xs">
+                                {persona.name.charAt(0)}
+                              </AvatarFallback>
                             </Avatar>
-                            <span className="font-medium text-sm">{persona.name}</span>
+                            <div className="min-w-0">
+                              <p className="font-medium text-sm truncate">{persona.name}</p>
+                              <p className="text-xs text-gray-500 truncate">
+                                {persona.backgroundJson && typeof persona.backgroundJson === 'object' && 'age' in persona.backgroundJson 
+                                  ? `Age: ${persona.backgroundJson.age}` 
+                                  : 'Character'
+                                }
+                              </p>
+                            </div>
                           </div>
                           <Button
                             size="sm"
                             onClick={() => handleStartSimulation(caseItem.id, persona.id)}
+                            className="shrink-0"
                           >
-                            <MessageCircle className="mr-2 h-4 w-4" />
+                            <MessageCircle className="mr-1 h-3 w-3" />
                             Chat
                           </Button>
                         </div>
