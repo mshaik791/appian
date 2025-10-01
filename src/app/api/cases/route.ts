@@ -24,16 +24,23 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q');
+    const competencyId = searchParams.get('competencyId');
+
+    const whereClause: any = {};
+    
+    if (query) {
+      whereClause.OR = [
+        { title: { contains: query, mode: 'insensitive' } },
+        { description: { contains: query, mode: 'insensitive' } },
+      ];
+    }
+    
+    if (competencyId) {
+      whereClause.competencyId = competencyId;
+    }
 
     const cases = await prisma.case.findMany({
-      where: query
-        ? {
-            OR: [
-              { title: { contains: query, mode: 'insensitive' } },
-              { description: { contains: query, mode: 'insensitive' } },
-            ],
-          }
-        : {},
+      where: whereClause,
       include: {
         _count: {
           select: { personas: true },
@@ -50,6 +57,9 @@ export async function GET(request: NextRequest) {
           select: { email: true },
         },
         rubric: {
+          select: { name: true },
+        },
+        competency: {
           select: { name: true },
         },
       },
