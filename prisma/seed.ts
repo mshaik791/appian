@@ -16,6 +16,28 @@ async function main() {
     create: { email: 'student@appian.dev', hashedPassword: pw, role: 'STUDENT' }
   })
 
+  // Create competencies
+  const engagementCompetency = await prisma.competency.create({
+    data: {
+      name: 'Engagement',
+      desc: 'Engage with individuals, families, groups, organizations, and communities to advance social and economic justice and human rights'
+    }
+  })
+
+  const ethicsCompetency = await prisma.competency.create({
+    data: {
+      name: 'Ethics',
+      desc: 'Apply social work ethical principles to guide professional practice and uphold professional standards'
+    }
+  })
+
+  const diversityCompetency = await prisma.competency.create({
+    data: {
+      name: 'Diversity',
+      desc: 'Engage diversity and difference in practice, recognizing the importance of cultural humility and intersectionality'
+    }
+  })
+
   const rubric = await prisma.rubric.create({
     data: {
       name: 'CSWE EPAS (mini)',
@@ -50,6 +72,12 @@ async function main() {
         languageNotes: ['occasionally code-switches'] 
       },
       objectivesJson: ['Build rapport', 'Explore stressors', 'Co-create an action plan'],
+      learningObjectivesJson: [
+        'Demonstrate active listening skills to build trust with first-generation college students',
+        'Apply cultural humility when discussing family obligations and financial pressures',
+        'Practice collaborative goal-setting techniques to create realistic academic plans'
+      ],
+      competencyId: engagementCompetency.id,
       rubricId: rubric.id,
       createdBy: faculty.id
     }
@@ -65,6 +93,33 @@ async function main() {
         languageNotes: ['prefers Dari interpreter; basic English'] 
       },
       objectivesJson: ['Establish safety', 'Assess needs', 'Provide culturally-appropriate referrals'],
+      learningObjectivesJson: [
+        'Demonstrate cultural sensitivity when working with refugee populations',
+        'Apply trauma-informed approaches to assessment and intervention',
+        'Practice ethical decision-making regarding confidentiality and family privacy'
+      ],
+      competencyId: diversityCompetency.id,
+      rubricId: rubric.id,
+      createdBy: faculty.id
+    }
+  })
+
+  const case3 = await prisma.case.create({
+    data: {
+      title: 'Elderly Client with Dementia',
+      description: 'Family conflict over care decisions; client showing signs of cognitive decline.',
+      culturalContextJson: { 
+        identity: ['White', 'middle-class', 'rural'], 
+        values: ['independence', 'family loyalty'], 
+        languageNotes: ['clear English communication'] 
+      },
+      objectivesJson: ['Assess capacity', 'Facilitate family meeting', 'Explore care options'],
+      learningObjectivesJson: [
+        'Apply ethical principles when assessing client capacity and autonomy',
+        'Demonstrate skills in facilitating difficult family conversations',
+        'Practice professional boundaries while maintaining empathy and compassion'
+      ],
+      competencyId: ethicsCompetency.id,
       rubricId: rubric.id,
       createdBy: faculty.id
     }
@@ -89,11 +144,26 @@ async function main() {
         avatarId: 'heygen_preset_02',
         promptTemplate: 'You are Parwin, an Afghan parent recently resettled...',
         safetyJson: { blockedTopics: ['diagnosis', 'legal advice'] }
+      },
+      {
+        caseId: case3.id,
+        name: 'Robert M.',
+        backgroundJson: { age: 78, condition: 'early dementia', familySize: 3 },
+        voiceId: 'voice_en_male_01',
+        avatarId: 'heygen_preset_03',
+        promptTemplate: 'You are Robert, an elderly client with early signs of dementia...',
+        safetyJson: { blockedTopics: ['diagnosis', 'legal advice'] }
       }
     ]
   })
 
-  console.log('Seed complete:', { faculty: faculty.email, student: student.email })
+  console.log('Seed complete:', { 
+    faculty: faculty.email, 
+    student: student.email,
+    competencies: [engagementCompetency.name, ethicsCompetency.name, diversityCompetency.name],
+    cases: 3,
+    personas: 3
+  })
 }
 
 main()
