@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Plus, Loader2, Trash2 } from 'lucide-react';
 import { CaseForm } from '@/components/CaseForm';
 import { PersonaPreview } from '@/components/PersonaPreview';
+import { PersonaEditModal } from '@/components/PersonaEditModal';
 import { Persona, Rubric } from '@prisma/client';
 
 interface CaseWithDetails {
@@ -29,6 +30,8 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [generatingPersona, setGeneratingPersona] = useState(false);
+  const [editingPersona, setEditingPersona] = useState<Persona | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const router = useRouter();
 
   const fetchCaseData = async () => {
@@ -102,7 +105,10 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
           ...prev,
           personas: [...prev.personas, newPersona]
         } : null);
-        // Show success toast
+        
+        // Immediately open the edit modal for the new persona
+        setEditingPersona(newPersona);
+        setIsEditModalOpen(true);
       } else {
         const error = await response.json();
         console.error('Error generating persona:', error);
@@ -135,8 +141,43 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
   };
 
   const handleEditPersona = (personaId: string) => {
-    // TODO: Implement persona editing modal/drawer
-    console.log('Edit persona:', personaId);
+    const persona = caseData?.personas.find(p => p.id === personaId);
+    if (persona) {
+      setEditingPersona(persona);
+      setIsEditModalOpen(true);
+    }
+  };
+
+  const handleSavePersona = async (personaId: string, data: {
+    name: string;
+    avatarId: string;
+    voiceId: string;
+    promptTemplate: string;
+    backgroundJson: Record<string, unknown>;
+    safetyJson: Record<string, unknown>;
+  }) => {
+    try {
+      const response = await fetch(`/api/personas/${personaId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        const updatedPersona = await response.json();
+        setCaseData(prev => prev ? {
+          ...prev,
+          personas: prev.personas.map(p => p.id === personaId ? updatedPersona : p)
+        } : null);
+        setIsEditModalOpen(false);
+        setEditingPersona(null);
+      } else {
+        const error = await response.json();
+        console.error('Error updating persona:', error);
+      }
+    } catch (error) {
+      console.error('Error updating persona:', error);
+    }
   };
 
   const handleDeletePersona = async (personaId: string) => {
@@ -262,6 +303,17 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
           </Card>
         </div>
       </div>
+
+      {/* Persona Edit Modal */}
+      <PersonaEditModal
+        persona={editingPersona}
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingPersona(null);
+        }}
+        onSave={handleSavePersona}
+      />
     </div>
   );
 }

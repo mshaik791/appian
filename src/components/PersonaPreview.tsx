@@ -7,6 +7,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Edit, Trash2, ChevronDown, ChevronRight } from 'lucide-react';
 import { Persona } from '@prisma/client';
 import { useState } from 'react';
+import { HEYGEN_AVATAR_OPTIONS, VOICE_OPTIONS } from '@/data/avatarOptions';
 
 interface PersonaPreviewProps {
   persona: Persona;
@@ -20,6 +21,10 @@ export function PersonaPreview({ persona, onEdit, onDelete }: PersonaPreviewProp
   const promptLines = persona.promptTemplate?.split('\n') || [];
   const previewLines = promptLines.slice(0, 6);
   const hasMore = promptLines.length > 6;
+
+  // Get display labels for avatar and voice
+  const avatarLabel = HEYGEN_AVATAR_OPTIONS.find(opt => opt.id === persona.avatarId)?.label || persona.avatarId;
+  const voiceLabel = VOICE_OPTIONS.find(opt => opt.id === persona.voiceId)?.label || persona.voiceId;
 
   return (
     <Card className="w-full">
@@ -38,8 +43,8 @@ export function PersonaPreview({ persona, onEdit, onDelete }: PersonaPreviewProp
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex gap-2">
-          <Badge variant="secondary">{persona.avatarId}</Badge>
-          <Badge variant="outline">{persona.voiceId}</Badge>
+          <Badge variant="secondary">{avatarLabel}</Badge>
+          <Badge variant="outline">{voiceLabel}</Badge>
         </div>
 
         <Collapsible open={isOpen} onOpenChange={setIsOpen}>

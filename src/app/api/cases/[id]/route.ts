@@ -84,8 +84,8 @@ export async function PATCH(
       where: { id },
       data: {
         ...validatedData,
-        culturalContextJson: validatedData.culturalContextJson,
-        objectivesJson: validatedData.objectivesJson,
+        culturalContextJson: validatedData.culturalContextJson as any,
+        objectivesJson: validatedData.objectivesJson as any,
       },
       include: {
         personas: {
