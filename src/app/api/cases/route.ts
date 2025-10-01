@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     }
 
     const userRole = (session.user as any)?.role;
-    if (!['FACULTY', 'ADMIN'].includes(userRole)) {
+    if (!['STUDENT', 'FACULTY', 'ADMIN'].includes(userRole)) {
       return NextResponse.json(
         { error: 'Forbidden' },
         { status: 403 }
@@ -37,6 +37,14 @@ export async function GET(request: NextRequest) {
       include: {
         _count: {
           select: { personas: true },
+        },
+        personas: {
+          select: {
+            id: true,
+            name: true,
+            avatarId: true,
+            voiceId: true,
+          },
         },
         creator: {
           select: { email: true },
