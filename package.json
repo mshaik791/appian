@@ -26,9 +26,9 @@
     "list-cases": "tsx scripts/list-cases.ts",
     "test-competency-selector": "tsx scripts/test-competency-selector.ts",
     "test-scenario-selection": "tsx scripts/test-scenario-selection.ts",
-    "test-simulation-creation": "tsx scripts/test-simulation-creation.ts",
-    "debug-user-session": "tsx scripts/debug-user-session.ts",
-    "debug-session": "tsx scripts/debug-session.ts"
+        "test-simulation-creation": "tsx scripts/test-simulation-creation.ts",
+        "debug-user-session": "tsx scripts/debug-user-session.ts",
+        "debug-session": "tsx scripts/debug-session.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.42",

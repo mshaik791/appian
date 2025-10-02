@@ -44,6 +44,8 @@ model User {
   studentSims    Simulation[]   @relation("StudentSimulations")
   facultyNotes   Feedback[]     @relation("FacultyFeedback")
   studentNotes   Feedback[]     @relation("StudentFeedback")
+  assignedCases  Assignment[]   @relation("StudentAssignments")
+  assignedByMe   Assignment[]   @relation("AdminAssignments")
 }
 
 model Competency {
@@ -67,21 +69,17 @@ model Case {
   createdBy              String
   updatedAt              DateTime @updatedAt
 
-  competencyId        String
-  competency          Competency @relation(fields: [competencyId], references: [id])
-  learningObjectivesJson Json
-
   // relations
   competency  Competency   @relation(fields: [competencyId], references: [id])
   rubric      Rubric       @relation(fields: [rubricId], references: [id])
   creator     User         @relation("CaseCreator", fields: [createdBy], references: [id])
   personas    Persona[]
   simulations Simulation[]
+  assignments Assignment[]
 
   @@index([competencyId])
   @@index([rubricId])
   @@index([createdBy])
-  @@index([competencyId])
 }
 
 model Persona {
@@ -174,4 +172,21 @@ model Feedback {
   @@index([simulationId])
   @@index([studentId])
   @@index([facultyId])
+}
+
+model Assignment {
+  id        String   @id @default(cuid())
+  caseId    String
+  studentId String
+  assignedBy String   // Admin ID
+  createdAt DateTime @default(now())
+
+  case     Case @relation(fields: [caseId], references: [id])
+  student  User @relation("StudentAssignments", fields: [studentId], references: [id])
+  admin    User @relation("AdminAssignments", fields: [assignedBy], references: [id])
+
+  @@unique([caseId, studentId])
+  @@index([caseId])
+  @@index([studentId])
+  @@index([assignedBy])
 }
