@@ -5,7 +5,9 @@ export const createCaseSchema = z.object({
   description: z.string().min(1, 'Description is required').max(2000, 'Description too long'),
   culturalContextJson: z.record(z.any()).default({}),
   objectivesJson: z.array(z.string()).default([]),
+  learningObjectivesJson: z.array(z.string()).default([]),
   rubricId: z.string().min(1, 'Rubric is required'),
+  competencyId: z.string().min(1, 'Competency is required'),
 });
 
 export const updateCaseSchema = z.object({
@@ -13,7 +15,9 @@ export const updateCaseSchema = z.object({
   description: z.string().min(1, 'Description is required').max(2000, 'Description too long').optional(),
   culturalContextJson: z.record(z.any()).optional(),
   objectivesJson: z.array(z.string()).optional(),
+  learningObjectivesJson: z.array(z.string()).optional(),
   rubricId: z.string().min(1, 'Rubric is required').optional(),
+  competencyId: z.string().min(1, 'Competency is required').optional(),
 });
 
 export const updatePersonaSchema = z.object({

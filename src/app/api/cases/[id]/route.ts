@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { getToken } from 'next-auth/jwt';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
 
@@ -10,7 +9,9 @@ const updateCaseSchema = z.object({
   description: z.string().min(1, 'Description is required').max(2000, 'Description too long').optional(),
   culturalContextJson: z.any().optional(),
   objectivesJson: z.any().optional(),
+  learningObjectivesJson: z.any().optional(),
   rubricId: z.string().min(1, 'Rubric is required').optional(),
+  competencyId: z.string().min(1, 'Competency is required').optional(),
 });
 
 export async function GET(
@@ -18,15 +19,15 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const token = await getToken({ req: request });
+    if (!token) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
 
-    const userRole = (session.user as any)?.role;
+    const userRole = token.role as string;
     if (!['FACULTY', 'ADMIN'].includes(userRole)) {
       return NextResponse.json(
         { error: 'Forbidden' },
@@ -69,18 +70,18 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const token = await getToken({ req: request });
+    if (!token) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
 
-    const userRole = (session.user as any)?.role;
-    if (!['FACULTY', 'ADMIN'].includes(userRole)) {
+    const userRole = token.role as string;
+    if (userRole !== 'ADMIN') {
       return NextResponse.json(
-        { error: 'Forbidden' },
+        { error: 'Forbidden - Only administrators can update cases' },
         { status: 403 }
       );
     }
@@ -96,6 +97,7 @@ export async function PATCH(
         ...validatedData,
         culturalContextJson: validatedData.culturalContextJson as any,
         objectivesJson: validatedData.objectivesJson as any,
+        learningObjectivesJson: validatedData.learningObjectivesJson as any,
       },
       include: {
         personas: {
@@ -134,18 +136,18 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const token = await getToken({ req: request });
+    if (!token) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
 
-    const userRole = (session.user as any)?.role;
-    if (!['FACULTY', 'ADMIN'].includes(userRole)) {
+    const userRole = token.role as string;
+    if (userRole !== 'ADMIN') {
       return NextResponse.json(
-        { error: 'Forbidden' },
+        { error: 'Forbidden - Only administrators can delete cases' },
         { status: 403 }
       );
     }

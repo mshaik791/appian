@@ -16,23 +16,35 @@ async function main() {
     create: { email: 'student@appian.dev', hashedPassword: pw, role: 'STUDENT' }
   })
 
+  const admin = await prisma.user.upsert({
+    where: { email: 'admin@appian.dev' },
+    update: {},
+    create: { email: 'admin@appian.dev', hashedPassword: pw, role: 'ADMIN' }
+  })
+
   // Create competencies
-  const engagementCompetency = await prisma.competency.create({
-    data: {
+  const engagementCompetency = await prisma.competency.upsert({
+    where: { name: 'Engagement' },
+    update: {},
+    create: {
       name: 'Engagement',
       desc: 'Engage with individuals, families, groups, organizations, and communities to advance social and economic justice and human rights'
     }
   })
 
-  const ethicsCompetency = await prisma.competency.create({
-    data: {
+  const ethicsCompetency = await prisma.competency.upsert({
+    where: { name: 'Ethics' },
+    update: {},
+    create: {
       name: 'Ethics',
       desc: 'Apply social work ethical principles to guide professional practice and uphold professional standards'
     }
   })
 
-  const diversityCompetency = await prisma.competency.create({
-    data: {
+  const diversityCompetency = await prisma.competency.upsert({
+    where: { name: 'Diversity' },
+    update: {},
+    create: {
       name: 'Diversity',
       desc: 'Engage diversity and difference in practice, recognizing the importance of cultural humility and intersectionality'
     }
@@ -160,6 +172,7 @@ async function main() {
   console.log('Seed complete:', { 
     faculty: faculty.email, 
     student: student.email,
+    admin: admin.email,
     competencies: [engagementCompetency.name, ethicsCompetency.name, diversityCompetency.name],
     cases: 3,
     personas: 3
