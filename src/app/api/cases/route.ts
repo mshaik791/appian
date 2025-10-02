@@ -1,20 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { getToken } from 'next-auth/jwt';
 import { prisma } from '@/lib/db';
 import { createCaseSchema } from '@/lib/validations';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const token = await getToken({ req: request });
+    if (!token) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
 
-    const userRole = (session.user as any)?.role;
+    const userRole = token.role as string;
     if (!['STUDENT', 'FACULTY', 'ADMIN'].includes(userRole)) {
       return NextResponse.json(
         { error: 'Forbidden' },
@@ -78,18 +77,18 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const token = await getToken({ req: request });
+    if (!token) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
 
-    const userRole = (session.user as any)?.role;
-    if (!['FACULTY', 'ADMIN'].includes(userRole)) {
+    const userRole = token.role as string;
+    if (userRole !== 'ADMIN') {
       return NextResponse.json(
-        { error: 'Forbidden' },
+        { error: 'Forbidden - Only administrators can create cases' },
         { status: 403 }
       );
     }
@@ -102,7 +101,8 @@ export async function POST(request: NextRequest) {
         ...validatedData,
         culturalContextJson: validatedData.culturalContextJson,
         objectivesJson: validatedData.objectivesJson,
-        createdBy: session.user.id,
+        learningObjectivesJson: validatedData.learningObjectivesJson,
+        createdBy: token.id || token.sub!,
       },
       include: {
         _count: {
