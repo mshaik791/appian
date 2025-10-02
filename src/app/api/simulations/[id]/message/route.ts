@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { getToken } from 'next-auth/jwt';
 import { prisma } from '@/lib/db';
 import { redisClient } from '@/lib/redis';
 import { openai } from '@ai-sdk/openai';
 import { streamText } from 'ai';
 import { z } from 'zod';
+import { SimulationStatus, Speaker } from '@prisma/client';
 
 const messageSchema = z.object({
   message: z.string().min(1, 'Message is required'),
@@ -16,15 +16,15 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const token = await getToken({ req: request });
+    if (!token) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
 
-    const userRole = (session.user as any)?.role;
+    const userRole = token.role as string;
     if (!['STUDENT', 'ADMIN'].includes(userRole)) {
       return NextResponse.json(
         { error: 'Forbidden' },
@@ -40,8 +40,8 @@ export async function POST(
     const simulation = await prisma.simulation.findFirst({
       where: {
         id: simulationId,
-        studentId: session.user.id,
-        status: 'active',
+        studentId: token.id || token.sub!,
+        status: SimulationStatus.active,
       },
       include: {
         case: {
@@ -67,7 +67,7 @@ export async function POST(
     const studentTurn = await prisma.turn.create({
       data: {
         simulationId: simulationId,
-        speaker: 'student',
+        speaker: Speaker.student,
         text: validatedData.message,
       },
     });
@@ -138,14 +138,14 @@ export async function POST(
           const personaTurn = await prisma.turn.create({
             data: {
               simulationId: simulationId,
-              speaker: 'persona',
+                speaker: Speaker.persona,
               text: fullResponse,
             },
           });
 
           // Update conversation history in Redis
           conversationHistory.turns.push({
-            speaker: 'persona',
+                speaker: Speaker.persona,
             content: fullResponse,
             timestamp: personaTurn.createdAt,
           });

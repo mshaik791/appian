@@ -17,8 +17,8 @@ enum Role {
 }
 
 enum SimulationMode {
-  chat
-  voice
+  learning
+  assessment
 }
 
 enum SimulationStatus {
@@ -46,6 +46,13 @@ model User {
   studentNotes   Feedback[]     @relation("StudentFeedback")
 }
 
+model Competency {
+  id    String @id @default(cuid())
+  name  String @unique
+  desc  String
+  cases Case[]
+}
+
 model Case {
   id                  String   @id @default(cuid())
   title               String
@@ -56,6 +63,10 @@ model Case {
   createdBy           String
   updatedAt           DateTime @updatedAt
 
+  competencyId        String
+  competency          Competency @relation(fields: [competencyId], references: [id])
+  learningObjectivesJson Json
+
   // relations
   rubric      Rubric       @relation(fields: [rubricId], references: [id])
   creator     User         @relation("CaseCreator", fields: [createdBy], references: [id])
@@ -64,6 +75,7 @@ model Case {
 
   @@index([rubricId])
   @@index([createdBy])
+  @@index([competencyId])
 }
 
 model Persona {

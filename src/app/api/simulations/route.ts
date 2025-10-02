@@ -1,35 +1,62 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { getToken } from 'next-auth/jwt';
 import { prisma } from '@/lib/db';
 import { z } from 'zod';
+import { SimulationMode, SimulationStatus } from '@prisma/client';
 
 const startSimulationSchema = z.object({
   caseId: z.string().min(1, 'Case ID is required'),
   personaId: z.string().min(1, 'Persona ID is required'),
-  mode: z.enum(['chat', 'voice']).default('chat'),
+  mode: z.nativeEnum(SimulationMode).default(SimulationMode.learning),
 });
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    console.log('🚀 POST /api/simulations - Starting simulation creation');
+    
+    const token = await getToken({ req: request });
+    console.log('🔑 Token:', token ? 'Found' : 'Not found');
+    
+    if (!token) {
+      console.log('❌ No token found, returning 401');
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
 
-    const userRole = (session.user as any)?.role;
+    const userRole = token.role as string;
+    console.log('👤 User role:', userRole);
+    
     if (!['STUDENT', 'ADMIN'].includes(userRole)) {
+      console.log('❌ Invalid role, returning 403');
       return NextResponse.json(
         { error: 'Forbidden' },
         { status: 403 }
       );
     }
 
+    // Check if user exists in database
+    const dbUser = await prisma.user.findUnique({
+      where: { id: (token.id || token.sub)! },
+      select: { id: true, email: true, role: true },
+    });
+    
+    console.log('👤 Database user:', dbUser ? 'Found' : 'Not found');
+    
+    if (!dbUser) {
+      console.log('❌ User not found in database');
+      return NextResponse.json(
+        { error: 'User not found in database. Please log out and log back in.' },
+        { status: 404 }
+      );
+    }
+
     const body = await request.json();
+    console.log('📋 Request body:', body);
+    
     const validatedData = startSimulationSchema.parse(body);
+    console.log('✅ Validated data:', validatedData);
 
     // Verify the case and persona exist and are linked
     const caseWithPersona = await prisma.case.findFirst({
@@ -61,9 +88,9 @@ export async function POST(request: NextRequest) {
       data: {
         caseId: validatedData.caseId,
         personaId: validatedData.personaId,
-        studentId: session.user.id,
+        studentId: (token.id || token.sub)!,
         mode: validatedData.mode,
-        status: 'active',
+        status: SimulationStatus.active,
       },
       include: {
         case: {
@@ -74,6 +101,8 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    console.log('✅ Simulation created successfully:', simulation.id);
 
     return NextResponse.json({
       simulationId: simulation.id,

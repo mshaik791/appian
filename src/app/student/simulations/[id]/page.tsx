@@ -18,6 +18,7 @@ interface Message {
 
 interface SimulationData {
   id: string;
+  mode: 'learning' | 'assessment';
   case: {
     title: string;
     description: string;
@@ -47,7 +48,9 @@ export default function SimulationPage({ params }: { params: Promise<{ id: strin
   useEffect(() => {
     const fetchSimulation = async () => {
       try {
-        const response = await fetch(`/api/simulations/${resolvedParams.id}`);
+        const response = await fetch(`/api/simulations/${resolvedParams.id}`, {
+          credentials: 'include',
+        });
         if (response.ok) {
           const data = await response.json();
           setSimulation(data);
@@ -90,12 +93,13 @@ export default function SimulationPage({ params }: { params: Promise<{ id: strin
       };
       setMessages(prev => [...prev, studentMessage]);
 
-      // Send to API and handle streaming response
-      const response = await fetch(`/api/simulations/${simulation.id}/message`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message }),
-      });
+          // Send to API and handle streaming response
+          const response = await fetch(`/api/simulations/${simulation.id}/message`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ message }),
+          });
 
       if (!response.ok) {
         throw new Error('Failed to send message');
@@ -238,6 +242,16 @@ export default function SimulationPage({ params }: { params: Promise<{ id: strin
               <CardTitle>Case Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div>
+                <h4 className="font-medium mb-2">Mode</h4>
+                <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                  simulation.mode === 'learning' 
+                    ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' 
+                    : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                }`}>
+                  {simulation.mode === 'learning' ? '📚 Learning' : '🎓 Assessment'}
+                </div>
+              </div>
               <div>
                 <h4 className="font-medium mb-2">Case Title</h4>
                 <p className="text-sm text-gray-600 dark:text-gray-300">

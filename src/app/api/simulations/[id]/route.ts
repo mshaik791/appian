@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { getToken } from 'next-auth/jwt';
 import { prisma } from '@/lib/db';
 
 export async function GET(
@@ -8,15 +7,15 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const token = await getToken({ req: request });
+    if (!token) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
 
-    const userRole = (session.user as any)?.role;
+    const userRole = token.role as string;
     if (!['STUDENT', 'ADMIN'].includes(userRole)) {
       return NextResponse.json(
         { error: 'Forbidden' },
@@ -29,7 +28,7 @@ export async function GET(
     const simulation = await prisma.simulation.findFirst({
       where: {
         id: simulationId,
-        studentId: session.user.id,
+        studentId: token.id || token.sub!,
       },
       include: {
         case: {
