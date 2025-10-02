@@ -1,11 +1,12 @@
 import { getCurrentUser } from '@/lib/auth-helpers'
 import { redirect } from 'next/navigation'
+import LandingPage from '@/components/LandingPage'
 
 export default async function Home() {
   const user = await getCurrentUser()
   
   if (!user) {
-    redirect('/login')
+    return <LandingPage />
   }
 
   // Redirect based on role

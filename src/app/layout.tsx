@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from '@/components/auth-provider'
 import Navbar from '@/components/navbar'
 import { Toaster } from 'sonner'
+import { ConditionalNavbar } from '@/components/ConditionalNavbar'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,7 +32,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-          <Navbar />
+          <ConditionalNavbar />
           {children}
           <Toaster />
         </AuthProvider>
