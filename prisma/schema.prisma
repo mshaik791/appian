@@ -51,28 +51,34 @@ model Competency {
   name  String @unique
   desc  String
   cases Case[]
+
+  @@index([name])
 }
 
 model Case {
-  id                  String   @id @default(cuid())
-  title               String
-  description         String
-  culturalContextJson Json
-  objectivesJson      Json
-  rubricId            String
-  createdBy           String
-  updatedAt           DateTime @updatedAt
+  id                     String   @id @default(cuid())
+  title                  String
+  description            String
+  culturalContextJson    Json
+  objectivesJson         Json
+  learningObjectivesJson Json
+  competencyId           String
+  rubricId               String
+  createdBy              String
+  updatedAt              DateTime @updatedAt
 
   competencyId        String
   competency          Competency @relation(fields: [competencyId], references: [id])
   learningObjectivesJson Json
 
   // relations
+  competency  Competency   @relation(fields: [competencyId], references: [id])
   rubric      Rubric       @relation(fields: [rubricId], references: [id])
   creator     User         @relation("CaseCreator", fields: [createdBy], references: [id])
   personas    Persona[]
   simulations Simulation[]
 
+  @@index([competencyId])
   @@index([rubricId])
   @@index([createdBy])
   @@index([competencyId])
