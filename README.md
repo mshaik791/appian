@@ -41,13 +41,18 @@ npm install
 cp .env.example .env
 ```
 
-Edit `.env` with your configuration:
+Edit `.env.local` with your configuration:
 ```env
 NEXTAUTH_SECRET=your-secret-key
 NEXTAUTH_URL=http://localhost:3000
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/appian
 REDIS_URL=redis://localhost:6379
+HEYGEN_API_KEY=your-heygen-api-key
 ```
+
+**Required Environment Variables:**
+- `HEYGEN_API_KEY`: Your HeyGen API key for avatar streaming functionality
+  - Get it from: https://app.heygen.com/settings/api-keys
 
 4. Set up the database:
 ```bash
