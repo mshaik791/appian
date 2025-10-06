@@ -110,14 +110,23 @@ export async function POST(
       .map(turn => `${turn.speaker}: ${turn.content}`)
       .join('\n');
 
-    const fullPrompt = `${systemPrompt}\n\nConversation so far:\n${conversationContext}\n\nRespond as the persona. Keep responses conversational and in character.`;
+           // Create a conversational prompt for natural dialogue
+           const conversationalPrompt = `You are ${simulation.persona.name} having a casual, friendly conversation.
+Keep responses SHORT (1-2 sentences max) and natural - like chatting with a friend.
+For greetings like "hi" or "hello", respond warmly but briefly.
+NO therapeutic/counseling language. NO motivational speeches.
+Be conversational, not formal or robotic.
+
+Person: ${validatedData.message}
+
+Respond naturally as ${simulation.persona.name}:`;
 
     // Stream the response
     const result = await streamText({
       model: openai('gpt-4o-mini'), // Fixed: use openai directly, not openaiClient
-      prompt: fullPrompt,
-      maxTokens: 500,
-      temperature: 0.7,
+      prompt: conversationalPrompt,
+      maxTokens: 200, // Shorter responses for natural conversation
+      temperature: 0.8, // Slightly more creative for natural responses
     });
 
     // Create a readable stream for the response

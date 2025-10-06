@@ -1,10 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    turbopack: {
-      root: __dirname,
-    },
-  },
+  // Clean config without experimental features
+  outputFileTracingRoot: '/Users/hameed/Documents/appian',
 }
 
 module.exports = nextConfig
