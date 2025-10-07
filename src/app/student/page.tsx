@@ -187,9 +187,16 @@ export default function StudentDashboard() {
             </h1>
             <Sparkles className="h-8 w-8 text-purple-500" />
           </div>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-4">
             Practice your social work skills with assigned scenarios or explore competency areas
           </p>
+          <Button
+            onClick={() => router.push('/sim/config')}
+            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+          >
+            <MessageCircle className="mr-2 h-4 w-4" />
+            Open Streaming Config
+          </Button>
         </div>
 
         {/* Assigned Cases Section */}

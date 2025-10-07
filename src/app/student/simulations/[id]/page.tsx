@@ -48,6 +48,8 @@ export default function SimulationPage({ params, searchParams }: { params: Promi
   const [transcript, setTranscript] = useState<Array<{ id: string; sender: 'user' | 'avatar'; content: string }>>([]);
   const [muted, setMuted] = useState<boolean>(false);
   const [voiceActive, setVoiceActive] = useState<boolean>(false);
+  const [isUserTalking, setIsUserTalking] = useState<boolean>(false);
+  const [isAvatarTalking, setIsAvatarTalking] = useState<boolean>(false);
   const [streamingMessage, setStreamingMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
@@ -149,12 +151,30 @@ export default function SimulationPage({ params, searchParams }: { params: Promi
           language: expLanguage || (typeof searchParams?.language === 'string' ? searchParams?.language : undefined),
           quality: expQuality || (typeof searchParams?.quality === 'string' ? (searchParams?.quality as any) : undefined),
           onStartSpeak: () => {
+            setIsAvatarTalking(true);
             turnManagerRef.current?.lockForPersona();
           },
-          onEndSpeak: () => turnManagerRef.current?.personaDone(),
+          onEndSpeak: () => {
+            setIsAvatarTalking(false);
+            turnManagerRef.current?.personaDone();
+          },
         });
 
-        // Wire transcript and talking events from HeyGen
+        // Vendor-style event handling
+        session.on(StreamingEvents.USER_START as any, () => {
+          setIsUserTalking(true);
+        });
+        session.on(StreamingEvents.USER_STOP as any, () => {
+          setIsUserTalking(false);
+        });
+        session.on(StreamingEvents.AVATAR_START_TALKING as any, () => {
+          setIsAvatarTalking(true);
+          turnManagerRef.current?.lockForPersona();
+        });
+        session.on(StreamingEvents.AVATAR_STOP_TALKING as any, () => {
+          setIsAvatarTalking(false);
+          turnManagerRef.current?.personaDone();
+        });
         session.on(StreamingEvents.USER_TALKING_MESSAGE as any, ({ detail }: any) => {
           asrBufferRef.current = `${asrBufferRef.current}${detail.message}`;
           setCaptions(asrBufferRef.current);
@@ -212,6 +232,15 @@ export default function SimulationPage({ params, searchParams }: { params: Promi
 
     return () => {
       if (avatarRef.current) {
+        avatarRef.current.off(StreamingEvents.USER_START as any);
+        avatarRef.current.off(StreamingEvents.USER_STOP as any);
+        avatarRef.current.off(StreamingEvents.AVATAR_START_TALKING as any);
+        avatarRef.current.off(StreamingEvents.AVATAR_STOP_TALKING as any);
+        avatarRef.current.off(StreamingEvents.USER_TALKING_MESSAGE as any);
+        avatarRef.current.off(StreamingEvents.USER_END_MESSAGE as any);
+        avatarRef.current.off(StreamingEvents.AVATAR_TALKING_MESSAGE as any);
+        avatarRef.current.off(StreamingEvents.AVATAR_END_MESSAGE as any);
+        avatarRef.current.off(StreamingEvents.CONNECTION_QUALITY_CHANGED as any);
         avatarRef.current.end();
         avatarRef.current = null;
       }
@@ -290,9 +319,13 @@ export default function SimulationPage({ params, searchParams }: { params: Promi
                 setStreamingMessage('');
                 setPersonaTyping(false);
 
-                // Single-utterance TTS like vendor
-                if (avatarRef.current && fullResponse.trim()) {
-                  await avatarRef.current.speak(fullResponse);
+                // Single-utterance TTS like vendor - only if avatar is not already talking
+                if (avatarRef.current && fullResponse.trim() && !isAvatarTalking) {
+                  try {
+                    await avatarRef.current.speak(fullResponse);
+                  } catch (error) {
+                    console.error("Error speaking:", error);
+                  }
                 }
                 // Transcript append
                 setTranscript(prev => [...prev, { id: `t-${Date.now()}`, sender: 'avatar', content: fullResponse }]);
@@ -430,15 +463,20 @@ export default function SimulationPage({ params, searchParams }: { params: Promi
             </CardContent>
           </Card>
           {/* Transcript below stream - merges live USER/AVATAR messages like vendor */}
-          <div className="mt-3 h-28 overflow-auto rounded-md bg-white/5 px-3 py-2 text-sm text-white/80">
-                {transcript.length === 0 && <div className="text-white/40">Transcript will appear here…</div>}
-                {transcript.map((m) => (
-                  <div key={m.id} className="mb-1">
-                    <span className={`mr-2 rounded px-1.5 py-0.5 text-xs ${m.sender === 'user' ? 'bg-blue-500/30 text-blue-200' : 'bg-green-500/30 text-green-200'}`}>{m.sender === 'user' ? 'You' : 'Avatar'}</span>
-                    <span>{m.content}</span>
-                  </div>
-                ))}
-              </div>
+          <div className="mt-4">
+            <div className="text-xs uppercase tracking-wide text-white/60 mb-2">Transcript</div>
+            <div className="h-48 overflow-auto rounded-md border border-white/10 bg-white/5 px-3 py-3 text-sm text-white/80">
+              {transcript.length === 0 && (
+                <div className="text-white/40">Speak to the avatar or click Start Voice Chat to see the live transcript…</div>
+              )}
+              {transcript.map((m) => (
+                <div key={m.id} className="mb-2 leading-relaxed">
+                  <span className={`mr-2 rounded px-1.5 py-0.5 text-[10px] uppercase tracking-wide ${m.sender === 'user' ? 'bg-blue-500/30 text-blue-200' : 'bg-green-500/30 text-green-200'}`}>{m.sender === 'user' ? 'You' : 'Avatar'}</span>
+                  <span>{m.content}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Case Information */}
