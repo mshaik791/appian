@@ -159,13 +159,13 @@ export async function startHeygenSession({
       }
     },
     mute: () => {
-      try { (avatar as any).muteInputAudio?.(); } catch (e) { console.error(e); }
+      try { (avatar as any).muteInputAudio?.(); } catch (e) { console.error("muteInputAudio error:", e); }
     },
     unmute: () => {
-      try { (avatar as any).unmuteInputAudio?.(); } catch (e) { console.error(e); }
+      try { (avatar as any).unmuteInputAudio?.(); } catch (e) { console.error("unmuteInputAudio error:", e); }
     },
     interrupt: () => {
-      try { (avatar as any).interrupt?.(); } catch (e) { console.error(e); }
+      try { (avatar as any).interrupt?.(); } catch (e) { console.error("interrupt error:", e); }
     },
     on: (event, handler) => {
       (avatar as any).on?.(event, handler);

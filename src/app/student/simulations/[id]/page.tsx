@@ -127,6 +127,29 @@ export default function SimulationPage({ params, searchParams }: { params: Promi
 
         const { token } = await response.json();
 
+        // Create knowledge base for this persona
+        let knowledgeId: string | undefined;
+        try {
+          const kbResponse = await fetch("/api/knowledge-base", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: `${simulation.persona.name} - ${simulation.case.title}`,
+              content: `You are ${simulation.persona.name}, a character in a social work simulation. ${simulation.persona.promptTemplate}\n\nCase context: ${simulation.case.description}\n\nPlease respond naturally as this character would, staying in character throughout the conversation.`
+            })
+          });
+          
+          if (kbResponse.ok) {
+            const kbData = await kbResponse.json();
+            knowledgeId = kbData.knowledgeBaseId;
+            console.log("Created knowledge base:", knowledgeId);
+          } else {
+            console.warn("Failed to create knowledge base, proceeding without it");
+          }
+        } catch (error) {
+          console.error("Error creating knowledge base:", error);
+        }
+
         // Pull any experiment selections from sessionStorage if present
         let expVoiceId: string | undefined;
         let expKnowledgeId: string | undefined;
@@ -141,13 +164,13 @@ export default function SimulationPage({ params, searchParams }: { params: Promi
           }
         } catch {}
 
-        // Start HeyGen session
+        // Start HeyGen session with knowledge base for automatic responses
         const session = await startHeygenSession({
           token,
           videoEl: videoRef.current!,
           avatarName: "Pedro_Chair_Sitting_public",
           voiceId: expVoiceId || (typeof searchParams?.voiceId === 'string' && searchParams?.voiceId) || simulation.persona.voiceId || "Fpmh5GZLmV0wU1dCR06y",
-          knowledgeId: expKnowledgeId || (typeof searchParams?.knowledgeId === 'string' ? searchParams?.knowledgeId : undefined),
+          knowledgeId: expKnowledgeId || knowledgeId || (typeof searchParams?.knowledgeId === 'string' ? searchParams?.knowledgeId : undefined),
           language: expLanguage || (typeof searchParams?.language === 'string' ? searchParams?.language : undefined),
           quality: expQuality || (typeof searchParams?.quality === 'string' ? (searchParams?.quality as any) : undefined),
           onStartSpeak: () => {
@@ -193,9 +216,12 @@ export default function SimulationPage({ params, searchParams }: { params: Promi
           const finalText = asrBufferRef.current.trim();
           asrBufferRef.current = "";
           setCaptions("");
-          if (finalText.length >= 3 && turnManagerRef.current?.canAcceptStudentFinal()) {
-            await handleSendMessage(finalText);
-          }
+          
+          // In voice chat mode, let HeyGen handle the conversation with knowledge base
+          // Don't call our custom LLM API - HeyGen will respond automatically
+          console.log("User finished speaking:", finalText);
+          console.log("Letting HeyGen knowledge base handle the response automatically");
+          
           transcriptSenderRef.current = null;
         });
 
@@ -319,16 +345,9 @@ export default function SimulationPage({ params, searchParams }: { params: Promi
                 setStreamingMessage('');
                 setPersonaTyping(false);
 
-                // Single-utterance TTS like vendor - only if avatar is not already talking
-                if (avatarRef.current && fullResponse.trim() && !isAvatarTalking) {
-                  try {
-                    await avatarRef.current.speak(fullResponse);
-                  } catch (error) {
-                    console.error("Error speaking:", error);
-                  }
-                }
-                // Transcript append
-                setTranscript(prev => [...prev, { id: `t-${Date.now()}`, sender: 'avatar', content: fullResponse }]);
+                // Let HeyGen SDK handle TTS automatically - don't manually call speak()
+                // The SDK will emit AVATAR_TALKING_MESSAGE events which we handle above
+                console.log("LLM response complete, letting HeyGen SDK handle TTS");
                 // If SDK doesn't emit "end", call personaDone
                 turnManagerRef.current?.personaDone();
               } else if (data.error) {
@@ -390,17 +409,18 @@ export default function SimulationPage({ params, searchParams }: { params: Promi
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Immersive Avatar Panel */}
-        <div className="lg:col-span-3">
-          <Card className="h-[600px] flex flex-col">
+        <div className="lg:col-span-2">
+          <Card className="h-[700px] flex flex-col">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2">
                 {simulation.persona.name} — {simulation.case.title}
               </CardTitle>
             </CardHeader>
-            <CardContent className="flex-1 grid grid-rows-[1fr_auto] gap-4">
-              <div className="flex-1 rounded-2xl overflow-hidden bg-black/20">
+            <CardContent className="flex-1 flex flex-col gap-4">
+              {/* Avatar Video - Better positioned */}
+              <div className="flex-1 rounded-xl overflow-hidden bg-gradient-to-br from-gray-900 to-gray-800 relative">
                 <video
                   ref={videoRef}
                   autoPlay
@@ -412,71 +432,152 @@ export default function SimulationPage({ params, searchParams }: { params: Promi
                       try { await avatarRef.current.startVoice(); setVoiceActive(true); } catch {}
                     }
                   }}
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-cover"
+                  style={{ objectPosition: 'center center' }}
                 />
+                {/* Status overlay */}
+                <div className="absolute top-4 left-4 flex gap-2">
+                  <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    voiceActive ? 'bg-green-500/20 text-green-300 border border-green-500/30' : 'bg-gray-500/20 text-gray-300 border border-gray-500/30'
+                  }`}>
+                    {voiceActive ? '🎤 Voice Active' : '🔇 Voice Inactive'}
+                  </div>
+                  {isUserTalking && (
+                    <div className="px-2 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                      🗣️ You're speaking
+                    </div>
+                  )}
+                  {isAvatarTalking && (
+                    <div className="px-2 py-1 rounded-full text-xs font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                      🤖 Avatar speaking
+                    </div>
+                  )}
+                </div>
               </div>
-              <div>
+              
+              {/* Controls */}
+              <div className="space-y-3">
                 <div className="flex items-center justify-center gap-3">
-                  <button
+                  <Button
                     onClick={async () => {
                       if (!avatarRef.current) return;
                       if (!voiceActive) {
-                        await avatarRef.current.startVoice();
-                        setVoiceActive(true);
+                        try {
+                          await avatarRef.current.startVoice();
+                          setVoiceActive(true);
+                        } catch (error) {
+                          console.error('Failed to start voice:', error);
+                        }
                       } else {
-                        avatarRef.current.stopVoice();
-                        setVoiceActive(false);
+                        try {
+                          avatarRef.current.stopVoice();
+                          setVoiceActive(false);
+                        } catch (error) {
+                          console.error('Failed to stop voice:', error);
+                        }
                       }
                     }}
-                    className={`rounded-md px-4 py-2 text-sm font-semibold transition-colors shadow ${voiceActive ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-indigo-600 hover:bg-indigo-700 text-white'}`}
+                    variant={voiceActive ? "default" : "secondary"}
+                    className={`${voiceActive ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'} text-white`}
                   >
-                    {voiceActive ? 'Voice Chat On' : 'Start Voice Chat'}
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (!avatarRef.current) return;
-                      if (muted) {
-                        avatarRef.current.unmute();
-                        setMuted(false);
-                      } else {
-                        avatarRef.current.mute();
-                        setMuted(true);
+                    {voiceActive ? '🎤 Voice Chat On' : '🎤 Start Voice Chat'}
+                  </Button>
+                  
+                  <Button
+                    onClick={async () => {
+                      if (!avatarRef.current) {
+                        console.warn('No avatar session available for mute toggle');
+                        return;
+                      }
+                      try {
+                        if (muted) {
+                          console.log('Unmuting microphone...');
+                          avatarRef.current.unmute();
+                          setMuted(false);
+                        } else {
+                          console.log('Muting microphone...');
+                          avatarRef.current.mute();
+                          setMuted(true);
+                        }
+                      } catch (error) {
+                        console.error('Failed to toggle mute:', error);
                       }
                     }}
-                    className={`rounded-md px-4 py-2 text-sm font-semibold transition-colors shadow ${muted ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-gray-600 hover:bg-gray-700 text-white'}`}
+                    variant={muted ? "destructive" : "secondary"}
+                    className={`${muted ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-600 hover:bg-gray-700'} text-white`}
                   >
-                    {muted ? 'Unmute Mic' : 'Mute Mic'}
-                  </button>
-                  <button
-                    onClick={() => {
-                      avatarRef.current?.interrupt();
+                    {muted ? '🔇 Unmute Mic' : '🎤 Mute Mic'}
+                  </Button>
+                  
+                  <Button
+                    onClick={async () => {
+                      if (!avatarRef.current) {
+                        console.warn('No avatar session available for interrupt');
+                        return;
+                      }
+                      try {
+                        console.log('Interrupting avatar...');
+                        avatarRef.current.interrupt();
+                      } catch (error) {
+                        console.error('Failed to interrupt:', error);
+                      }
                     }}
-                    className="rounded-md px-4 py-2 text-sm font-semibold transition-colors shadow bg-amber-600 hover:bg-amber-700 text-white"
+                    variant="secondary"
+                    className="bg-amber-600 hover:bg-amber-700 text-white"
                   >
-                    Interrupt
-                  </button>
+                    ⏹️ Interrupt
+                  </Button>
                 </div>
-                <div className="text-sm text-white/70 mt-2 text-center min-h-5">
-                  {captions || ' '}
+                
+                {/* Live captions */}
+                <div className="text-center">
+                  <div className="text-sm text-gray-600 dark:text-gray-400 min-h-[20px] px-4">
+                    {captions ? (
+                      <span className="bg-blue-50 dark:bg-blue-900/20 px-3 py-1 rounded-full text-blue-700 dark:text-blue-300">
+                        {captions}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400">Listening...</span>
+                    )}
+                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
-          {/* Transcript below stream - merges live USER/AVATAR messages like vendor */}
-          <div className="mt-4">
-            <div className="text-xs uppercase tracking-wide text-white/60 mb-2">Transcript</div>
-            <div className="h-48 overflow-auto rounded-md border border-white/10 bg-white/5 px-3 py-3 text-sm text-white/80">
-              {transcript.length === 0 && (
-                <div className="text-white/40">Speak to the avatar or click Start Voice Chat to see the live transcript…</div>
-              )}
-              {transcript.map((m) => (
-                <div key={m.id} className="mb-2 leading-relaxed">
-                  <span className={`mr-2 rounded px-1.5 py-0.5 text-[10px] uppercase tracking-wide ${m.sender === 'user' ? 'bg-blue-500/30 text-blue-200' : 'bg-green-500/30 text-green-200'}`}>{m.sender === 'user' ? 'You' : 'Avatar'}</span>
-                  <span>{m.content}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          
+          {/* Transcript Panel */}
+          <Card className="mt-4">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg">Live Transcript</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-64 overflow-y-auto rounded-lg border bg-gray-50 dark:bg-gray-900 p-4">
+                {transcript.length === 0 ? (
+                  <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+                    <div className="text-4xl mb-2">🎤</div>
+                    <p>Start speaking to see the live transcript here</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {transcript.map((m) => (
+                      <div key={m.id} className="flex gap-3">
+                        <div className={`flex-shrink-0 w-16 text-xs font-medium uppercase tracking-wide rounded-full px-2 py-1 text-center ${
+                          m.sender === 'user' 
+                            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' 
+                            : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                        }`}>
+                          {m.sender === 'user' ? 'You' : 'Avatar'}
+                        </div>
+                        <div className="flex-1 text-sm leading-relaxed">
+                          {m.content}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Case Information */}
