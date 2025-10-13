@@ -17,11 +17,13 @@ export const MessageHistory: React.FC = () => {
   return (
     <div
       ref={containerRef}
+      data-transcript-root
       className="w-[600px] overflow-y-auto flex flex-col gap-2 px-2 py-2 text-white self-center max-h-[150px]"
     >
       {messages.map((message) => (
         <div
           key={message.id}
+          data-role={message.sender === MessageSender.AVATAR ? "avatar" : "student"}
           className={`flex flex-col gap-1 max-w-[350px] ${
             message.sender === MessageSender.CLIENT
               ? "self-end items-end"

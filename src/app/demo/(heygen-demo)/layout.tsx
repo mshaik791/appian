@@ -1,5 +1,6 @@
 import "@/styles/demo/globals.css";
 import { Metadata } from "next";
+import EndOverlay from "./overlay/EndOverlay";
 
 export const metadata: Metadata = {
   title: {
@@ -21,6 +22,7 @@ export default function DemoLayout({
       <main className="relative flex flex-col gap-6 h-screen w-screen">
         {children}
       </main>
+      <EndOverlay />
     </div>
   );
 }

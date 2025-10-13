@@ -46,6 +46,8 @@ model User {
   studentNotes   Feedback[]     @relation("StudentFeedback")
   assignedCases  Assignment[]   @relation("StudentAssignments")
   assignedByMe   Assignment[]   @relation("AdminAssignments")
+  evaluations    SimulationEvaluation[]
+  reflections    ReflectionResponse[]
 }
 
 model Competency {
@@ -76,6 +78,8 @@ model Case {
   personas    Persona[]
   simulations Simulation[]
   assignments Assignment[]
+  evaluations SimulationEvaluation[]
+  reflections ReflectionResponse[]
 
   @@index([competencyId])
   @@index([rubricId])
@@ -189,4 +193,46 @@ model Assignment {
   @@index([caseId])
   @@index([studentId])
   @@index([assignedBy])
+}
+
+model SimulationEvaluation {
+  id                String   @id @default(cuid())
+  simSessionId      String?  // Can be null for demo sessions
+  caseId            String
+  studentId         String
+  empathy           Int      // 1-5 score
+  culturalResponse  Int      // 1-5 score
+  ethicsAwareness   Int      // 1-5 score
+  activeListening   Int      // 1-5 score
+  summary           String   // AI-generated summary
+  evidenceJson      Json     // Evidence quotes for each dimension
+  competencyAlignmentJson Json? // How behavior aligns with competencies
+  modelConfidence   Float    // 0.0-1.0 confidence score
+  createdAt         DateTime @default(now())
+
+  case     Case @relation(fields: [caseId], references: [id])
+  student  User @relation(fields: [studentId], references: [id])
+
+  @@unique([caseId, simSessionId])
+  @@index([caseId])
+  @@index([simSessionId])
+  @@index([studentId])
+}
+
+model ReflectionResponse {
+  id           String    @id @default(cuid())
+  caseId       String
+  simSessionId String?
+  studentId    String
+  response     String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  case    Case @relation(fields: [caseId], references: [id])
+  student User @relation(fields: [studentId], references: [id])
+
+  @@unique([caseId, simSessionId, studentId])
+  @@index([caseId])
+  @@index([simSessionId])
+  @@index([studentId])
 }
