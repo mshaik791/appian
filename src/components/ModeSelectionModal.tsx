@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, GraduationCap, Loader2 } from 'lucide-react';
 import { SimulationMode } from '@prisma/client';
-import HeygenExperimentModal from './HeygenExperimentModal';
 
 interface ModeSelectionModalProps {
   isOpen: boolean;
@@ -16,6 +15,8 @@ interface ModeSelectionModalProps {
   personaId: string;
   caseTitle: string;
   personaName: string;
+  personaAvatarId?: string;
+  personaVoiceId?: string;
 }
 
 export function ModeSelectionModal({
@@ -25,10 +26,64 @@ export function ModeSelectionModal({
   personaId,
   caseTitle,
   personaName,
+  personaAvatarId,
+  personaVoiceId,
 }: ModeSelectionModalProps) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const [showHeygen, setShowHeygen] = useState(false);
+
+  const handleLearningMode = async () => {
+    setLoading(true);
+    try {
+      console.log('🚀 Starting learning mode - routing to demo');
+      console.log('📋 Case ID:', caseId);
+      console.log('👤 Persona ID:', personaId);
+      
+      // Create session in DB (keep existing logic)
+      const response = await fetch('/api/simulations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ caseId, personaId, mode: SimulationMode.learning }),
+      });
+
+      console.log('📡 API Response status:', response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Simulation created:', data);
+        const { simulationId } = data;
+        
+        // Build query parameters for demo
+        const params = new URLSearchParams({
+          caseId,
+          personaId,
+          sid: simulationId,
+          lang: 'English',
+          q: 'low',
+          t: 'websocket',
+        });
+        
+        // Add optional persona data if available
+        if (personaAvatarId) params.set('avatar', personaAvatarId);
+        if (personaVoiceId) params.set('voice', personaVoiceId);
+        
+        // Route to demo instead of simulation page
+        router.push(`/demo?${params.toString()}`);
+      } else {
+        const errorData = await response.json();
+        console.error('❌ Failed to start simulation:', errorData);
+        alert(`Failed to start simulation: ${errorData.error}`);
+      }
+    } catch (error) {
+      console.error('❌ Error starting simulation:', error);
+      alert(`Error starting simulation: ${error}`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleModeSelection = async (mode: SimulationMode) => {
     setLoading(true);
@@ -104,9 +159,7 @@ export function ModeSelectionModal({
                   In Learning Mode, you'll get real-time feedback and guidance to help you improve your social work skills.
                 </p>
                 <Button
-                  onClick={() => {
-                    setShowHeygen(true);
-                  }}
+                  onClick={handleLearningMode}
                   disabled={loading}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 >
@@ -169,18 +222,6 @@ export function ModeSelectionModal({
           </div>
         </div>
       </DialogContent>
-      <HeygenExperimentModal
-        open={showHeygen}
-        onClose={() => setShowHeygen(false)}
-        onContinue={async () => {
-          setShowHeygen(false);
-          // The experiment modal will already have started voice chat; navigate to simulation with selected params
-          // We cannot read selections directly here without lifting state. As a simple approach,
-          // we pass values through the query string using sessionStorage (set by the modal) or defaults.
-          // Fall back to API flow
-          await handleModeSelection(SimulationMode.learning);
-        }}
-      />
     </Dialog>
   );
 }

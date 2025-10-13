@@ -456,6 +456,8 @@ export default function StudentDashboard() {
             personaId={selectedPersona.id}
             caseTitle={selectedCase.title}
             personaName={selectedPersona.name}
+            personaAvatarId={selectedPersona.avatarId}
+            personaVoiceId={selectedPersona.voiceId}
           />
         )}
       </div>
