@@ -380,6 +380,8 @@ export default function CompetencyPage({ params }: { params: Promise<{ id: strin
           personaId={selectedPersona.id}
           caseTitle={selectedCase.title}
           personaName={selectedPersona.name}
+          personaAvatarId={selectedPersona.avatarId}
+          personaVoiceId={selectedPersona.voiceId}
         />
       )}
     </div>
