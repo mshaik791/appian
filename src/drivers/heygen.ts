@@ -5,6 +5,7 @@ import StreamingAvatar, {
   VoiceEmotion,
   ElevenLabsModel,
   VoiceChatTransport,
+  STTProvider,
 } from "@heygen/streaming-avatar";
 
 export interface HeyGenSessionOptions {
@@ -75,12 +76,15 @@ export async function startHeygenSession({
     knowledgeId: knowledgeId,
     voice: {
       voiceId: voiceId,
-      rate: 1.0,
-      emotion: VoiceEmotion.EXCITED,
+      rate: 1.0, // Original speed
+      emotion: VoiceEmotion.SERIOUS,
       model: ElevenLabsModel.eleven_flash_v2_5,
     },
     language: language || "en",
     voiceChatTransport: (transport === 'webrtc' ? VoiceChatTransport.WEBRTC : VoiceChatTransport.WEBSOCKET),
+    sttSettings: {
+      provider: STTProvider.DEEPGRAM, // Add STT settings like vendor demo
+    },
   };
 
   // Set up event listeners

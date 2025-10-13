@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, use, useRef } from 'react';
+import { useState, useEffect, use, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,12 @@ import { startHeygenSession, type HeyGenSession } from '@/drivers/heygen';
 import { StreamingEvents } from '@heygen/streaming-avatar';
 // Vendor-style TTS: speak once per final response (no incremental buffer)
 import { TurnManager } from '@/realtime/turn-manager';
+
+// Message sender enum like vendor demo
+enum MessageSender {
+  CLIENT = "CLIENT",
+  AVATAR = "AVATAR",
+}
 
 interface Message {
   id: string;
@@ -45,7 +51,7 @@ export default function SimulationPage({ params, searchParams }: { params: Promi
   const resolvedParams = use(params);
   const [simulation, setSimulation] = useState<SimulationData | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [transcript, setTranscript] = useState<Array<{ id: string; sender: 'user' | 'avatar'; content: string }>>([]);
+  const [transcript, setTranscript] = useState<Array<{ id: string; sender: MessageSender; content: string }>>([]);
   const [muted, setMuted] = useState<boolean>(false);
   const [voiceActive, setVoiceActive] = useState<boolean>(false);
   const [isUserTalking, setIsUserTalking] = useState<boolean>(false);
@@ -62,7 +68,81 @@ export default function SimulationPage({ params, searchParams }: { params: Promi
   const router = useRouter();
   // Buffer for live ASR emitted by HeyGen SDK
   const asrBufferRef = useRef<string>("");
-  const transcriptSenderRef = useRef<'user'|'avatar'|null>(null);
+  const currentSenderRef = useRef<MessageSender | null>(null);
+  const messageIdCounter = useRef(0);
+  
+  // Generate truly unique IDs
+  const generateUniqueId = () => {
+    messageIdCounter.current += 1;
+    return `${Date.now()}-${messageIdCounter.current}-${Math.random().toString(36).substr(2, 9)}`;
+  };
+
+  // Message handlers exactly like vendor demo
+  const handleUserTalkingMessage = useCallback(({ detail }: { detail: any }) => {
+    console.log("👤 User talking message:", detail.message);
+    
+    // Update captions for live display
+    asrBufferRef.current = `${asrBufferRef.current}${detail.message}`;
+    setCaptions(asrBufferRef.current);
+
+    // Handle transcript exactly like vendor demo
+    if (currentSenderRef.current === MessageSender.CLIENT) {
+      setTranscript((prev) => [
+        ...prev.slice(0, -1),
+        {
+          ...prev[prev.length - 1],
+          content: [prev[prev.length - 1].content, detail.message].join(""),
+        },
+      ]);
+    } else {
+      currentSenderRef.current = MessageSender.CLIENT;
+      setTranscript((prev) => [
+        ...prev,
+        {
+          id: generateUniqueId(),
+          sender: MessageSender.CLIENT,
+          content: detail.message,
+        },
+      ]);
+    }
+  }, []);
+
+  const handleStreamingTalkingMessage = useCallback(({ detail }: { detail: any }) => {
+    console.log("🎭 Avatar talking message:", detail.message);
+    
+    // Handle transcript exactly like vendor demo
+    if (currentSenderRef.current === MessageSender.AVATAR) {
+      setTranscript((prev) => [
+        ...prev.slice(0, -1),
+        {
+          ...prev[prev.length - 1],
+          content: [prev[prev.length - 1].content, detail.message].join(""),
+        },
+      ]);
+    } else {
+      currentSenderRef.current = MessageSender.AVATAR;
+      setTranscript((prev) => [
+        ...prev,
+        {
+          id: generateUniqueId(),
+          sender: MessageSender.AVATAR,
+          content: detail.message,
+        },
+      ]);
+    }
+  }, []);
+
+  const handleEndMessage = useCallback(() => {
+    console.log("🔚 End message - resetting sender");
+    currentSenderRef.current = null;
+  }, []);
+
+  const clearTranscript = () => {
+    console.log("🧹 Clearing transcript");
+    setTranscript([]);
+    currentSenderRef.current = null;
+    messageIdCounter.current = 0;
+  };
 
   // Initialize turn manager
   useEffect(() => {
@@ -127,28 +207,11 @@ export default function SimulationPage({ params, searchParams }: { params: Promi
 
         const { token } = await response.json();
 
-        // Create knowledge base for this persona
+        // Skip knowledge base creation for now - HeyGen API endpoint may not be available
         let knowledgeId: string | undefined;
-        try {
-          const kbResponse = await fetch("/api/knowledge-base", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              name: `${simulation.persona.name} - ${simulation.case.title}`,
-              content: `You are ${simulation.persona.name}, a character in a social work simulation. ${simulation.persona.promptTemplate}\n\nCase context: ${simulation.case.description}\n\nPlease respond naturally as this character would, staying in character throughout the conversation.`
-            })
-          });
-          
-          if (kbResponse.ok) {
-            const kbData = await kbResponse.json();
-            knowledgeId = kbData.knowledgeBaseId;
-            console.log("Created knowledge base:", knowledgeId);
-          } else {
-            console.warn("Failed to create knowledge base, proceeding without it");
-          }
-        } catch (error) {
-          console.error("Error creating knowledge base:", error);
-        }
+        console.log("⚠️ Skipping knowledge base creation - using avatar without knowledge base");
+        console.log("📝 Persona context:", `${simulation.persona.name} - ${simulation.case.title}`);
+        console.log("📝 Persona prompt:", simulation.persona.promptTemplate);
 
         // Pull any experiment selections from sessionStorage if present
         let expVoiceId: string | undefined;
@@ -165,80 +228,79 @@ export default function SimulationPage({ params, searchParams }: { params: Promi
         } catch {}
 
         // Start HeyGen session with knowledge base for automatic responses
+        const finalKnowledgeId = expKnowledgeId || knowledgeId || (typeof searchParams?.knowledgeId === 'string' ? searchParams?.knowledgeId : undefined);
+        console.log("🔧 Starting HeyGen session with knowledge base:", finalKnowledgeId);
+        
         const session = await startHeygenSession({
           token,
           videoEl: videoRef.current!,
           avatarName: "Pedro_Chair_Sitting_public",
           voiceId: expVoiceId || (typeof searchParams?.voiceId === 'string' && searchParams?.voiceId) || simulation.persona.voiceId || "Fpmh5GZLmV0wU1dCR06y",
-          knowledgeId: expKnowledgeId || knowledgeId || (typeof searchParams?.knowledgeId === 'string' ? searchParams?.knowledgeId : undefined),
+          knowledgeId: finalKnowledgeId,
           language: expLanguage || (typeof searchParams?.language === 'string' ? searchParams?.language : undefined),
           quality: expQuality || (typeof searchParams?.quality === 'string' ? (searchParams?.quality as any) : undefined),
           onStartSpeak: () => {
+            console.log("🎤 Avatar started speaking");
             setIsAvatarTalking(true);
             turnManagerRef.current?.lockForPersona();
           },
           onEndSpeak: () => {
+            console.log("🎤 Avatar finished speaking");
             setIsAvatarTalking(false);
             turnManagerRef.current?.personaDone();
           },
         });
 
-        // Vendor-style event handling
-        session.on(StreamingEvents.USER_START as any, () => {
+        // Create event handlers to avoid duplicate registrations
+        const userStartHandler = () => {
+          console.log("🎤 USER_START event - user started talking");
           setIsUserTalking(true);
-        });
-        session.on(StreamingEvents.USER_STOP as any, () => {
+        };
+        
+        const userStopHandler = () => {
+          console.log("🎤 USER_STOP event - user stopped talking");
           setIsUserTalking(false);
-        });
-        session.on(StreamingEvents.AVATAR_START_TALKING as any, () => {
+        };
+        
+        const avatarStartHandler = () => {
+          console.log("🎭 Avatar started talking");
           setIsAvatarTalking(true);
           turnManagerRef.current?.lockForPersona();
-        });
-        session.on(StreamingEvents.AVATAR_STOP_TALKING as any, () => {
+        };
+        
+        const avatarStopHandler = () => {
+          console.log("🎭 Avatar stopped talking");
           setIsAvatarTalking(false);
           turnManagerRef.current?.personaDone();
-        });
-        session.on(StreamingEvents.USER_TALKING_MESSAGE as any, ({ detail }: any) => {
-          asrBufferRef.current = `${asrBufferRef.current}${detail.message}`;
-          setCaptions(asrBufferRef.current);
-
-          // Append to transcript as USER (merge tokens like vendor)
-          setTranscript((prev) => {
-            if (transcriptSenderRef.current === 'user' && prev.length > 0) {
-              const last = prev[prev.length - 1];
-              return [...prev.slice(0, -1), { ...last, content: last.content + detail.message }];
-            }
-            transcriptSenderRef.current = 'user';
-            return [...prev, { id: `${Date.now()}-u`, sender: 'user', content: detail.message }];
-          });
-        });
-        session.on(StreamingEvents.USER_END_MESSAGE as any, async () => {
+        };
+        
+        const userEndHandler = () => {
+          console.log("🔚 USER_END_MESSAGE - user finished speaking");
           const finalText = asrBufferRef.current.trim();
           asrBufferRef.current = "";
           setCaptions("");
           
           // In voice chat mode, let HeyGen handle the conversation with knowledge base
-          // Don't call our custom LLM API - HeyGen will respond automatically
           console.log("User finished speaking:", finalText);
           console.log("Letting HeyGen knowledge base handle the response automatically");
           
-          transcriptSenderRef.current = null;
-        });
+          handleEndMessage();
+        };
+        
+        const avatarEndHandler = () => {
+          console.log("🔚 AVATAR_END_MESSAGE - avatar finished speaking");
+          handleEndMessage();
+        };
 
-        session.on(StreamingEvents.AVATAR_TALKING_MESSAGE as any, ({ detail }: any) => {
-          // Append to transcript as AVATAR
-          setTranscript((prev) => {
-            if (transcriptSenderRef.current === 'avatar' && prev.length > 0) {
-              const last = prev[prev.length - 1];
-              return [...prev.slice(0, -1), { ...last, content: last.content + detail.message }];
-            }
-            transcriptSenderRef.current = 'avatar';
-            return [...prev, { id: `${Date.now()}-a`, sender: 'avatar', content: detail.message }];
-          });
-        });
-        session.on(StreamingEvents.AVATAR_END_MESSAGE as any, () => {
-          transcriptSenderRef.current = null;
-        });
+        // Register events exactly like vendor demo
+        session.on(StreamingEvents.USER_START as any, userStartHandler);
+        session.on(StreamingEvents.USER_STOP as any, userStopHandler);
+        session.on(StreamingEvents.AVATAR_START_TALKING as any, avatarStartHandler);
+        session.on(StreamingEvents.AVATAR_STOP_TALKING as any, avatarStopHandler);
+        session.on(StreamingEvents.USER_TALKING_MESSAGE as any, handleUserTalkingMessage);
+        session.on(StreamingEvents.AVATAR_TALKING_MESSAGE as any, handleStreamingTalkingMessage);
+        session.on(StreamingEvents.USER_END_MESSAGE as any, userEndHandler);
+        session.on(StreamingEvents.AVATAR_END_MESSAGE as any, avatarEndHandler);
 
         avatarRef.current = session;
 
@@ -246,6 +308,16 @@ export default function SimulationPage({ params, searchParams }: { params: Promi
         try {
           await session.startVoice();
           setVoiceActive(true);
+          console.log("✅ Voice chat started successfully");
+          
+          // Log knowledge base status
+          if (finalKnowledgeId) {
+            console.log("✅ Knowledge base available:", finalKnowledgeId);
+            console.log("🎤 Avatar should respond automatically to user speech");
+          } else {
+            console.log("⚠️ No knowledge base available - avatar will respond to manual speak() calls only");
+            console.log("💡 Try using the 'Speak' button to test avatar responses");
+          }
         } catch (e) {
           console.warn('Auto-start voice chat failed; user gesture may be required', e);
         }
@@ -258,15 +330,27 @@ export default function SimulationPage({ params, searchParams }: { params: Promi
 
     return () => {
       if (avatarRef.current) {
+        console.log("🧹 Cleaning up avatar session and event listeners");
+        
+        // Remove all event listeners to prevent duplicates
         avatarRef.current.off(StreamingEvents.USER_START as any);
         avatarRef.current.off(StreamingEvents.USER_STOP as any);
         avatarRef.current.off(StreamingEvents.AVATAR_START_TALKING as any);
         avatarRef.current.off(StreamingEvents.AVATAR_STOP_TALKING as any);
         avatarRef.current.off(StreamingEvents.USER_TALKING_MESSAGE as any);
-        avatarRef.current.off(StreamingEvents.USER_END_MESSAGE as any);
         avatarRef.current.off(StreamingEvents.AVATAR_TALKING_MESSAGE as any);
+        avatarRef.current.off(StreamingEvents.USER_END_MESSAGE as any);
         avatarRef.current.off(StreamingEvents.AVATAR_END_MESSAGE as any);
         avatarRef.current.off(StreamingEvents.CONNECTION_QUALITY_CHANGED as any);
+        
+        // Clear transcript and reset state
+        setTranscript([]);
+        currentSenderRef.current = null;
+        messageIdCounter.current = 0;
+        asrBufferRef.current = "";
+        setCaptions("");
+        
+        // End the session
         avatarRef.current.end();
         avatarRef.current = null;
       }
@@ -527,6 +611,25 @@ export default function SimulationPage({ params, searchParams }: { params: Promi
                   >
                     ⏹️ Interrupt
                   </Button>
+                  
+                  <Button
+                    onClick={async () => {
+                      if (!avatarRef.current) {
+                        console.warn('No avatar session available for speak');
+                        return;
+                      }
+                      try {
+                        console.log('Testing avatar speak...');
+                        await avatarRef.current.speak("Hello! I'm ready to help you. How can I assist you today?");
+                      } catch (error) {
+                        console.error('Failed to speak:', error);
+                      }
+                    }}
+                    variant="secondary"
+                    className="bg-purple-600 hover:bg-purple-700 text-white"
+                  >
+                    🗣️ Test Speak
+                  </Button>
                 </div>
                 
                 {/* Live captions */}
@@ -548,7 +651,17 @@ export default function SimulationPage({ params, searchParams }: { params: Promi
           {/* Transcript Panel */}
           <Card className="mt-4">
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Live Transcript</CardTitle>
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-lg">Live Transcript</CardTitle>
+                <Button 
+                  onClick={clearTranscript}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                >
+                  Clear
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="h-64 overflow-y-auto rounded-lg border bg-gray-50 dark:bg-gray-900 p-4">
@@ -558,18 +671,25 @@ export default function SimulationPage({ params, searchParams }: { params: Promi
                     <p>Start speaking to see the live transcript here</p>
                   </div>
                 ) : (
-                  <div className="space-y-3">
-                    {transcript.map((m) => (
-                      <div key={m.id} className="flex gap-3">
-                        <div className={`flex-shrink-0 w-16 text-xs font-medium uppercase tracking-wide rounded-full px-2 py-1 text-center ${
-                          m.sender === 'user' 
-                            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' 
-                            : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                  <div className="space-y-2">
+                    {transcript.map((message) => (
+                      <div
+                        key={message.id}
+                        className={`flex flex-col gap-1 max-w-[350px] ${
+                          message.sender === MessageSender.CLIENT
+                            ? "self-end items-end ml-auto"
+                            : "self-start items-start mr-auto"
+                        }`}
+                      >
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {message.sender === MessageSender.AVATAR ? "Avatar" : "You"}
+                        </p>
+                        <div className={`px-3 py-2 rounded-lg text-sm ${
+                          message.sender === MessageSender.CLIENT
+                            ? "bg-blue-500 text-white"
+                            : "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                         }`}>
-                          {m.sender === 'user' ? 'You' : 'Avatar'}
-                        </div>
-                        <div className="flex-1 text-sm leading-relaxed">
-                          {m.content}
+                          {message.content}
                         </div>
                       </div>
                     ))}
