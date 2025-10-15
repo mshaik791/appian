@@ -7,12 +7,25 @@ export async function POST() {
     }
     const baseApiUrl = process.env.NEXT_PUBLIC_BASE_API_URL;
 
-    const res = await fetch(`${baseApiUrl}/v1/streaming.create_token`, {
+    // For development, disable SSL verification to handle self-signed certificates
+    const fetchOptions: any = {
       method: "POST",
       headers: {
         "x-api-key": HEYGEN_API_KEY,
+        "Content-Type": "application/json",
       },
-    });
+    };
+
+    // Only disable SSL verification in development
+    if (process.env.NODE_ENV === 'development') {
+      // Use a custom agent that ignores SSL errors
+      const { Agent } = await import('https');
+      fetchOptions.agent = new Agent({
+        rejectUnauthorized: false
+      });
+    }
+
+    const res = await fetch(`${baseApiUrl}/v1/streaming.create_token`, fetchOptions);
 
     console.log("Response:", res);
 
