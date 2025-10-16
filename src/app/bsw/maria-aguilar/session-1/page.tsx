@@ -284,44 +284,86 @@ export default function MariaSession1Page() {
 
   const QuestionPanel = ({ qKey }: { qKey: 'q1' | 'q2' | 'q3' }) => {
     const saved = (transcripts[qKey] || '').trim().length > 0;
-    const canNext = saved;
+    
+    const handleRecord = async () => {
+      if (recording.isRecording) {
+        // Stop recording and save
+        stopAndSave();
+        // Auto-advance after a brief delay
+        setTimeout(() => {
+          if (qKey === 'q1') setStep('q2');
+          else if (qKey === 'q2') setStep('q3');
+          else if (qKey === 'q3') setStep('review');
+        }, 1000);
+      } else {
+        // Start recording
+        startRecording();
+      }
+    };
+
     return (
       <Card>
         <CardHeader>
           <CardTitle>Question {qKey.substring(1)}</CardTitle>
         </CardHeader>
-        <CardContent className="grid md:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <div className="text-sm text-muted-foreground">{questions[qKey]}</div>
-            <div className="flex items-center gap-2">
-              <Button disabled={recording.isRecording} onClick={startRecording} aria-keyshortcuts="Alt+R">Start Recording</Button>
-              <Button variant="secondary" disabled={!recording.isRecording && !liveText} onClick={stopAndSave} aria-keyshortcuts="Alt+S">Stop & Save</Button>
-              <Button variant="outline" disabled={!saved && !liveText} onClick={reRecord}>Re-record</Button>
+        <CardContent className="space-y-6">
+          <div className="text-sm text-muted-foreground">{questions[qKey]}</div>
+          
+          <div className="flex flex-col items-center space-y-4">
+            {/* Record Button */}
+            <button
+              onClick={handleRecord}
+              disabled={!!recording.error}
+              className={`w-20 h-20 rounded-full flex items-center justify-center text-white font-semibold transition-all duration-200 ${
+                recording.isRecording 
+                  ? 'bg-red-600 hover:bg-red-700 animate-pulse' 
+                  : 'bg-red-500 hover:bg-red-600'
+              } ${recording.error ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+            >
+              {recording.isRecording ? 'STOP' : 'REC'}
+            </button>
+
+            {/* Wave Animation */}
+            {recording.isRecording && (
+              <div className="flex items-center space-x-1">
+                <div className="w-1 h-4 bg-red-500 animate-pulse"></div>
+                <div className="w-1 h-6 bg-red-500 animate-pulse" style={{ animationDelay: '0.1s' }}></div>
+                <div className="w-1 h-8 bg-red-500 animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                <div className="w-1 h-6 bg-red-500 animate-pulse" style={{ animationDelay: '0.3s' }}></div>
+                <div className="w-1 h-4 bg-red-500 animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                <div className="w-1 h-8 bg-red-500 animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+                <div className="w-1 h-6 bg-red-500 animate-pulse" style={{ animationDelay: '0.6s' }}></div>
+                <div className="w-1 h-4 bg-red-500 animate-pulse" style={{ animationDelay: '0.7s' }}></div>
+              </div>
+            )}
+
+            {/* Status */}
+            <div className="text-sm text-muted-foreground text-center">
+              {recording.isRecording ? 'Recording... Speak now' : 
+               saved ? 'Response saved ✓' : 
+               'Click to start recording'}
+              {recording.error && <div className="text-red-500 mt-1">{recording.error}</div>}
             </div>
-            <div className="text-xs text-muted-foreground">
-              {recording.isRecording ? 'Recording…' : 'Not recording'} {recording.error ? ` • ${recording.error}` : ''}
-            </div>
-          </div>
-          <div className="space-y-2">
-            <div className="text-sm font-medium">Live transcript</div>
-            <div className="min-h-[140px] p-3 rounded border bg-background text-sm whitespace-pre-wrap">
-              {(saved ? transcripts[qKey] : liveText) || '…'}
-            </div>
-            {saved && (
-              <div className="text-xs text-green-600">Saved. You can proceed or re-record.</div>
+
+            {/* Live Transcript Preview */}
+            {(liveText || saved) && (
+              <div className="w-full max-w-2xl">
+                <div className="text-sm font-medium mb-2">Your response:</div>
+                <div className="p-3 rounded border bg-background text-sm whitespace-pre-wrap min-h-[80px]">
+                  {saved ? transcripts[qKey] : liveText}
+                </div>
+              </div>
             )}
           </div>
-          <div className="md:col-span-2 flex justify-between">
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={gotoPrev}>Back</Button>
-            </div>
-            <div className="flex gap-2">
-              {qKey !== 'q3' ? (
-                <Button disabled={!canNext} onClick={gotoNext}>Next Question</Button>
-              ) : (
-                <Button disabled={!canNext} onClick={() => setStep('review')}>Review Answers</Button>
-              )}
-            </div>
+
+          {/* Navigation */}
+          <div className="flex justify-between">
+            <Button variant="outline" onClick={gotoPrev}>Back</Button>
+            {saved && (
+              <div className="text-sm text-green-600 flex items-center">
+                ✓ Ready for next question
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

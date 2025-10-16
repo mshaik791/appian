@@ -1,4 +1,4 @@
-# Appian
+# OxbridgEducation
 
 A production-ready Next.js 14 application with TypeScript, Tailwind CSS, shadcn/ui, Prisma, NextAuth, Redis, and comprehensive testing setup.
 
@@ -28,7 +28,7 @@ A production-ready Next.js 14 application with TypeScript, Tailwind CSS, shadcn/
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd appian
+cd oxbridgeducation
 ```
 
 2. Install dependencies:
@@ -45,7 +45,7 @@ Edit `.env.local` with your configuration:
 ```env
 NEXTAUTH_SECRET=your-secret-key
 NEXTAUTH_URL=http://localhost:3000
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/appian
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/oxbridgeducation
 REDIS_URL=redis://localhost:6379
 HEYGEN_API_KEY=your-heygen-api-key
 ```
@@ -87,8 +87,8 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
    ```
 
 4. **Login with test accounts:**
-   - Faculty: `faculty@appian.dev` / `Password123!`
-   - Student: `student@appian.dev` / `Password123!`
+   - Faculty: `faculty@oxbridgeducation.dev` / `Password123!`
+   - Student: `student@oxbridgeducation.dev` / `Password123!`
 
 ## Available Scripts
 

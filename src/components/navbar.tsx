@@ -47,7 +47,7 @@ export default function Navbar() {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                Appian
+                OxbridgEducation
               </h1>
             </div>
             <div className="flex items-center">
@@ -66,7 +66,7 @@ export default function Navbar() {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                Appian
+                OxbridgEducation
               </h1>
             </div>
             <div className="flex items-center">
@@ -89,7 +89,7 @@ export default function Navbar() {
               onClick={handleRoleRedirect}
               className="text-xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             >
-              Appian
+              OxbridgEducation
             </button>
           </div>
           <div className="flex items-center space-x-4">

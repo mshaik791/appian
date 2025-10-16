@@ -1,6 +1,6 @@
 # HeyGen Streaming Avatar Integration
 
-This implementation adopts the HeyGen demo's end-to-end approach for streaming avatars in the Appian social work simulation platform.
+This implementation adopts the HeyGen demo's end-to-end approach for streaming avatars in the OxbridgEducation social work simulation platform.
 
 ## Files Created
 

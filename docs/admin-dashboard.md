@@ -52,7 +52,7 @@ The Admin Dashboard provides a comprehensive interface for administrators to man
 
 ## Usage
 
-1. **Login as Admin**: Use `admin@appian.dev` / `Password123!`
+1. **Login as Admin**: Use `admin@oxbridgeducation.dev` / `Password123!`
 2. **Navigate to Dashboard**: Go to `/admin`
 3. **View Students**: See all registered students and their assignments
 4. **Assign Cases**: Click "Assign Case" to start assignment process

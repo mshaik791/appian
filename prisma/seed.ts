@@ -5,21 +5,21 @@ async function main() {
   const pw = await bcrypt.hash('Password123!', 10)
 
   const faculty = await prisma.user.upsert({
-    where: { email: 'faculty@appian.dev' },
+    where: { email: 'faculty@oxbridgeducation.dev' },
     update: {},
-    create: { email: 'faculty@appian.dev', hashedPassword: pw, role: 'FACULTY' }
+    create: { email: 'faculty@oxbridgeducation.dev', hashedPassword: pw, role: 'FACULTY' }
   })
 
   const student = await prisma.user.upsert({
-    where: { email: 'student@appian.dev' },
+    where: { email: 'student@oxbridgeducation.dev' },
     update: {},
-    create: { email: 'student@appian.dev', hashedPassword: pw, role: 'STUDENT' }
+    create: { email: 'student@oxbridgeducation.dev', hashedPassword: pw, role: 'STUDENT' }
   })
 
   const admin = await prisma.user.upsert({
-    where: { email: 'admin@appian.dev' },
+    where: { email: 'admin@oxbridgeducation.dev' },
     update: {},
-    create: { email: 'admin@appian.dev', hashedPassword: pw, role: 'ADMIN' }
+    create: { email: 'admin@oxbridgeducation.dev', hashedPassword: pw, role: 'ADMIN' }
   })
 
   // Create competencies

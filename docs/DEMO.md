@@ -4,7 +4,7 @@ This document describes the HeyGen Interactive Avatar SDK demo that has been mou
 
 ## Overview
 
-The HeyGen Interactive Avatar SDK demo is a standalone Next.js application that has been integrated into the main appian application under the `/demo` route. This allows users to test and interact with HeyGen's streaming avatar technology without leaving the main application.
+The HeyGen Interactive Avatar SDK demo is a standalone Next.js application that has been integrated into the main oxbridgeducation application under the `/demo` route. This allows users to test and interact with HeyGen's streaming avatar technology without leaving the main application.
 
 ## Access Points
 

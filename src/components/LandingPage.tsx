@@ -58,7 +58,7 @@ export default function LandingPage() {
                   <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                     <GraduationCap className="h-5 w-5 text-white" />
                   </div>
-                  <span className="text-xl font-bold text-gray-900">Appian</span>
+                  <span className="text-xl font-bold text-gray-900">OxbridgEducation</span>
                 </div>
               </div>
             </div>
@@ -379,7 +379,7 @@ export default function LandingPage() {
               What Students & Faculty Say
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Hear from those who are already using Appian to enhance their social work education.
+              Hear from those who are already using OxbridgEducation to enhance their social work education.
             </p>
           </div>
           
@@ -392,7 +392,7 @@ export default function LandingPage() {
               </div>
               <Quote className="h-8 w-8 text-blue-600 mb-4" />
               <p className="text-gray-600 mb-4">
-                "Appian has transformed how I practice social work. The AI simulations feel so real, 
+                "OxbridgEducation has transformed how I practice social work. The AI simulations feel so real, 
                 and I've gained confidence in handling difficult conversations."
               </p>
               <div className="flex items-center">
@@ -414,7 +414,7 @@ export default function LandingPage() {
               </div>
               <Quote className="h-8 w-8 text-blue-600 mb-4" />
               <p className="text-gray-600 mb-4">
-                "As a faculty member, I love how Appian allows me to track student progress and 
+                "As a faculty member, I love how OxbridgEducation allows me to track student progress and 
                 provide targeted feedback. It's revolutionized my teaching approach."
               </p>
               <div className="flex items-center">
@@ -460,7 +460,7 @@ export default function LandingPage() {
             Ready to Transform Your Social Work Education?
           </h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of students and faculty who are already using Appian to enhance their learning and teaching.
+            Join thousands of students and faculty who are already using OxbridgEducation to enhance their learning and teaching.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" variant="secondary" onClick={handleGetStarted} className="text-lg px-8 py-3">
@@ -483,7 +483,7 @@ export default function LandingPage() {
                 <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                   <GraduationCap className="h-5 w-5 text-white" />
                 </div>
-                <span className="text-xl font-bold">Appian</span>
+                <span className="text-xl font-bold">OxbridgEducation</span>
               </div>
               <p className="text-gray-400">
                 Empowering social work education through AI-powered simulations and comprehensive learning tools.
@@ -522,7 +522,7 @@ export default function LandingPage() {
           </div>
           
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 Appian. All rights reserved.</p>
+            <p>&copy; 2024 OxbridgEducation. All rights reserved.</p>
           </div>
         </div>
       </footer>
