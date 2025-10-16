@@ -169,12 +169,112 @@ async function main() {
     ]
   })
 
+  // --- BSW Track and Maria Aguilar Case (Session 1) ---
+  // Ensure Track exists
+  const bswTrack = await prisma.track.upsert({
+    where: { id: 'bsw' },
+    update: {},
+    create: { id: 'bsw', name: 'BSW' },
+  })
+
+  // Ensure competency for the case (use Engagement or create if missing)
+  const bswCompetency = engagementCompetency
+
+  // Create the case with additional UX fields
+  const mariaCase = await prisma.case.upsert({
+    where: { id: 'maria-aguilar-s1' },
+    update: {},
+    create: {
+      id: 'maria-aguilar-s1',
+      title: 'Maria Aguilar — Session 1',
+      description: 'Video-led session with Maria followed by reflective Q&A.',
+      culturalContextJson: {
+        identity: ['Black', 'lesbian'],
+        cityTransition: true,
+        partner: 'Jordan',
+      },
+      objectivesJson: [
+        'Build rapport using reflective listening',
+        'Invite client narrative around belonging and identity',
+        'Collaborate on next steps in a culturally responsive way',
+      ],
+      learningObjectivesJson: [
+        'Demonstrate empathy and cultural responsiveness during intake',
+      ],
+      competencyId: bswCompetency.id,
+      rubricId: rubric.id,
+      createdBy: faculty.id,
+
+      // New optional fields
+      trackId: bswTrack.id,
+      personaName: 'Maria Aguilar',
+      shortBio:
+        'Dynamic and thoughtful woman navigating a new city with her wife Jordan; reflective about dual identity as a Black lesbian; building community, coping with discrimination, seeking belonging.',
+      demographicsJson: {
+        age: 29,
+        gender: 'Female',
+        ethnicity: 'African American',
+        marital: 'Married',
+        occupation: 'Office Manager',
+        admissionDate: '2025-10-13',
+      },
+      coverImageUrl: '/images/maria_aguilar.jpg',
+      competencyCode: '6',
+      learningObjective:
+        'Demonstrate empathy, reflective listening, and culturally responsive engagement; invite client narrative and collaborate on next steps.',
+    },
+  })
+
+  // Ordered questions 1..3
+  await prisma.caseQuestion.upsert({
+    where: { caseId_order: { caseId: mariaCase.id, order: 1 } },
+    update: {},
+    create: {
+      caseId: mariaCase.id,
+      order: 1,
+      prompt:
+        'What did you notice about Maria’s priorities and concerns during the video? Provide 2-3 observations.',
+    },
+  })
+  await prisma.caseQuestion.upsert({
+    where: { caseId_order: { caseId: mariaCase.id, order: 2 } },
+    update: {},
+    create: {
+      caseId: mariaCase.id,
+      order: 2,
+      prompt:
+        'How would you demonstrate culturally responsive engagement in your next response to Maria? Include at least one specific phrase you would use.',
+    },
+  })
+  await prisma.caseQuestion.upsert({
+    where: { caseId_order: { caseId: mariaCase.id, order: 3 } },
+    update: {},
+    create: {
+      caseId: mariaCase.id,
+      order: 3,
+      prompt:
+        'Collaborate on one actionable next step with Maria that supports belonging and safety. Explain why it aligns with her goals.',
+    },
+  })
+
+  // Media asset for the MP4
+  await prisma.mediaAsset.upsert({
+    where: { id: `media-${mariaCase.id}-video` },
+    update: {},
+    create: {
+      id: `media-${mariaCase.id}-video`,
+      caseId: mariaCase.id,
+      path: '/videos/maria_aguilar_session1.mp4',
+      kind: 'video',
+    },
+  })
+
   console.log('Seed complete:', { 
     faculty: faculty.email, 
     student: student.email,
     admin: admin.email,
     competencies: [engagementCompetency.name, ethicsCompetency.name, diversityCompetency.name],
-    cases: 3,
+    cases: 3 + 1,
     personas: 3
   })
 }

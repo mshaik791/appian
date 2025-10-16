@@ -31,6 +31,13 @@ enum Speaker {
   persona
 }
 
+// Media kind for assets linked to a case
+enum MediaKind {
+  video
+  audio
+  image
+}
+
 model User {
   id             String   @id @default(cuid())
   email          String   @unique
@@ -71,6 +78,15 @@ model Case {
   createdBy              String
   updatedAt              DateTime @updatedAt
 
+  // Optional fields to support track-specific UX
+  trackId                String?  // links to Track.id
+  personaName            String?
+  shortBio               String?
+  demographicsJson       Json?
+  coverImageUrl          String?
+  competencyCode         String?
+  learningObjective      String?
+
   // relations
   competency  Competency   @relation(fields: [competencyId], references: [id])
   rubric      Rubric       @relation(fields: [rubricId], references: [id])
@@ -81,9 +97,45 @@ model Case {
   evaluations SimulationEvaluation[]
   reflections ReflectionResponse[]
 
+  // relations (optional)
+  track      Track?        @relation(fields: [trackId], references: [id])
+
   @@index([competencyId])
   @@index([rubricId])
   @@index([createdBy])
+}
+
+// Simple catalog for program tracks (e.g., BSW, MSW)
+model Track {
+  id    String @id
+  name  String
+
+  cases Case[]
+}
+
+// Ordered questions associated with a case session
+model CaseQuestion {
+  id       String @id @default(cuid())
+  caseId   String
+  order    Int
+  prompt   String
+
+  case     Case   @relation(fields: [caseId], references: [id])
+
+  @@unique([caseId, order])
+  @@index([caseId])
+}
+
+// Media assets (e.g., MP4) attached to a case
+model MediaAsset {
+  id     String   @id @default(cuid())
+  caseId String
+  path   String
+  kind   MediaKind
+
+  case   Case     @relation(fields: [caseId], references: [id])
+
+  @@index([caseId])
 }
 
 model Persona {
