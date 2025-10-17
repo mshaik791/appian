@@ -27,8 +27,8 @@ const DEFAULT_CONFIG: StartAvatarRequest = {
   avatarName: AVATARS[0].avatar_id,
   knowledgeId: undefined,
   voice: {
-    rate: 1.5,
-    emotion: VoiceEmotion.EXCITED,
+    rate: 1.0,
+    emotion: VoiceEmotion.SERIOUS,
     model: ElevenLabsModel.eleven_flash_v2_5,
   },
   language: "en",

@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-  const name = "Parwin Ahmad";
+  const name = "Samir Ahmad";
   const avatarId = "Pedro_Chair_Sitting_public";
   const voiceId  = "Fpmh5GZLmV0wU1dCR06y";
   const caseId = "cmg8u6rn1000ac9u3q1diqyvl"; // Afghan Refugee Parent case
@@ -18,7 +18,7 @@ async function main() {
         voiceId,
         caseId,
         backgroundJson: {},
-        promptTemplate: "You are Parwin Ahmad, an Afghan refugee father in late 30s with light olive skin, seated in a modest room. You have a warm but reserved tone and are navigating healthcare/benefits with trauma history implied.",
+      promptTemplate: "You are Samir Ahmad, an Afghan refugee father in late 30s with light olive skin, seated in a modest room. You have a warm but reserved tone and are navigating healthcare/benefits with trauma history implied.",
         safetyJson: {},
       },
     });
@@ -28,6 +28,6 @@ async function main() {
       data: { avatarId, voiceId },
     });
   }
-  console.log("✅ Parwin avatar/voice updated.");
+  console.log("✅ Samir avatar/voice updated.");
 }
 main().finally(() => prisma.$disconnect());

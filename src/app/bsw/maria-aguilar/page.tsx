@@ -292,7 +292,7 @@ export default function MariaCaseDetailPage() {
           <Button variant="outline">Back to Cases</Button>
         </Link>
         <div className="flex gap-2">
-          <Button onClick={() => router.push('/bsw/maria-aguilar/session-1?caseId=maria-aguilar-s1')} className="bg-gradient-to-r from-red-700 via-red-600 to-amber-600 hover:from-red-800 hover:via-red-700 hover:to-amber-700 text-white shadow px-6 py-3 text-base md:text-lg">
+          <Button onClick={() => router.push('/bsw/maria-aguilar/session-1?caseId=bsw-maria-aguilar-s1')} className="bg-gradient-to-r from-red-700 via-red-600 to-amber-600 hover:from-red-800 hover:via-red-700 hover:to-amber-700 text-white shadow px-6 py-3 text-base md:text-lg">
             Launch Scenario
           </Button>
         </div>

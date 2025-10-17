@@ -19,15 +19,15 @@ export async function getBswTranscript({
   prisma: PrismaClient;
 }): Promise<BswTranscriptResult> {
   // Load TurnLog rows for the session with role:"student", order ASC
-  const turns = await prisma.turnLog.findMany({
-    where: {
-      simSessionId,
-      role: 'student',
-    },
-    orderBy: {
-      order: 'asc',
-    },
-  });
+  // Use raw query to avoid potential client delegate issues
+  const turns = await prisma.$queryRawUnsafe<any[]>
+    (
+      `select "order", "text", "questionText", "caseId"
+       from "TurnLog"
+       where "simSessionId" = $1 and "role" = 'student'
+       order by "order" asc`,
+      simSessionId
+    );
 
   if (turns.length === 0) {
     throw new Error(`No student turns found for session ${simSessionId}`);
@@ -35,7 +35,7 @@ export async function getBswTranscript({
 
   // Get the case ID from the first turn to fetch questions
   const firstTurn = turns[0];
-  if (!firstTurn.caseId) {
+  if (!firstTurn?.caseId) {
     throw new Error(`No case ID found for session ${simSessionId}`);
   }
 
@@ -55,9 +55,9 @@ export async function getBswTranscript({
   );
 
   // Build question breakdown
-  const questionBreakdown: QuestionBreakdown[] = turns.map(turn => ({
-    order: turn.order,
-    prompt: questionMap.get(turn.order) || turn.questionText || `Question ${turn.order}`,
+  const questionBreakdown: QuestionBreakdown[] = turns.map((turn: any) => ({
+    order: Number(turn.order),
+    prompt: questionMap.get(Number(turn.order)) || turn.questionText || `Question ${turn.order}`,
     answer: turn.text || '(no answer)',
   }));
 

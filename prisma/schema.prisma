@@ -291,3 +291,18 @@ model ReflectionResponse {
   @@index([simSessionId])
   @@index([studentId])
 }
+
+// Lightweight logging for BSW Q&A answers per session
+model TurnLog {
+  id            String   @id @default(cuid())
+  simSessionId  String
+  caseId        String?
+  order         Int
+  role          String   // "student" or other
+  questionText  String?
+  text          String
+  createdAt     DateTime @default(now())
+
+  @@unique([simSessionId, order, role])
+  @@index([simSessionId])
+}

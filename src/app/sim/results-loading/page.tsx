@@ -40,12 +40,13 @@ export default function ResultsLoadingPage() {
           if (sid) resultParams.set('sid', sid);
           
           router.replace(`/sim/results?${resultParams.toString()}`);
-        } else if (response.status === 202) {
-          // Still pending, continue polling
-          setTimeout(pollResults, 1000);
+        } else if (response.status === 202 || response.status === 404) {
+          // 202: pending, 404: not created yet — keep polling silently
+          setTimeout(pollResults, 1200);
         } else {
-          console.error('Error polling results:', response.status);
-          setTimeout(pollResults, 2000); // Retry after 2 seconds
+          // Log once, then continue polling
+          console.warn('Results not ready yet, status:', response.status);
+          setTimeout(pollResults, 2000);
         }
       } catch (error) {
         console.error('Error polling results:', error);

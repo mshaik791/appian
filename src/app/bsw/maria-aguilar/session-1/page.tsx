@@ -36,7 +36,7 @@ const questions: Record<'q1' | 'q2' | 'q3', string> = {
 export default function MariaSession1Page() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const caseId = searchParams.get('caseId') || 'maria-aguilar-s1';
+  const caseId = searchParams.get('caseId') || 'bsw-maria-aguilar-s1';
   const simSessionId = searchParams.get('sid') || searchParams.get('simSessionId') || 'session-1';
 
   const [step, setStep] = useState<Step>('video');
