@@ -290,10 +290,21 @@ export default function MariaSession1Page() {
         // Stop recording and save
         stopAndSave();
         // Auto-advance after a brief delay
-        setTimeout(() => {
+        setTimeout(async () => {
           if (qKey === 'q1') setStep('q2');
           else if (qKey === 'q2') setStep('q3');
-          else if (qKey === 'q3') setStep('review');
+          else if (qKey === 'q3') {
+            // Auto-submit after Q3
+            setSaving(true);
+            try {
+              await submitForEvaluation();
+            } catch (error) {
+              console.error('Auto-submit failed:', error);
+              setStep('review'); // Fallback to review step
+            } finally {
+              setSaving(false);
+            }
+          }
         }, 1000);
       } else {
         // Start recording

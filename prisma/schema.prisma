@@ -96,6 +96,8 @@ model Case {
   assignments Assignment[]
   evaluations SimulationEvaluation[]
   reflections ReflectionResponse[]
+  questions  CaseQuestion[]
+  mediaAssets MediaAsset[]
 
   // relations (optional)
   track      Track?        @relation(fields: [trackId], references: [id])
@@ -251,19 +253,20 @@ model SimulationEvaluation {
   id                String   @id @default(cuid())
   simSessionId      String?  // Can be null for demo sessions
   caseId            String
-  studentId         String
-  empathy           Int      // 1-5 score
-  culturalResponse  Int      // 1-5 score
-  ethicsAwareness   Int      // 1-5 score
-  activeListening   Int      // 1-5 score
-  summary           String   // AI-generated summary
-  evidenceJson      Json     // Evidence quotes for each dimension
-  competencyAlignmentJson Json? // How behavior aligns with competencies
-  modelConfidence   Float    // 0.0-1.0 confidence score
+  studentId         String?
+  empathy           Int?     // 1-5 score (legacy field)
+  culturalResponse  Int?     // 1-5 score (legacy field)
+  ethicsAwareness   Int?     // 1-5 score (legacy field)
+  activeListening   Int?     // 1-5 score (legacy field)
+  summary           String?  // AI-generated summary (legacy field)
+  evidenceJson      Json?    // Evidence quotes for each dimension (legacy field)
+  competencyAlignmentJson Json? // How behavior aligns with competencies (legacy field)
+  modelConfidence   Float?   // 0.0-1.0 confidence score (legacy field)
+  rubricJson        Json?    // New flexible grading result JSON
   createdAt         DateTime @default(now())
 
   case     Case @relation(fields: [caseId], references: [id])
-  student  User @relation(fields: [studentId], references: [id])
+  student  User? @relation(fields: [studentId], references: [id])
 
   @@unique([caseId, simSessionId])
   @@index([caseId])

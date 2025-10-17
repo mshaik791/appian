@@ -193,7 +193,7 @@ export default function StudentDashboard() {
                   <Sparkles className="h-4 w-4" />
                   <span>AI Simulation Program</span>
                 </div>
-                <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">Welcome back, Mohammed</h1>
+                <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">USC Suzanne Dworak-Peck School of Social Work</h1>
                 <div className="mt-1 opacity-90 text-sm">Fall 2025 semester</div>
                 <div className="mt-4 flex flex-wrap items-center gap-2">
                   <Button size="sm" variant="secondary" className="bg-white/10 hover:bg-white/20 text-white border-white/20">
