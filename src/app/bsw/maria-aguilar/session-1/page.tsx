@@ -465,7 +465,7 @@ export default function MariaSession1Page() {
     <section className="mx-auto max-w-screen-2xl px-4 lg:px-8 py-8">
       <div className="rounded-3xl bg-white dark:bg-neutral-950 shadow-2xl ring-1 ring-black/5 p-6 sm:p-8">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold">Maria Aguilar — Session 1</h1>
+          <h1 className="text-2xl font-bold">Your Session With Maria Aguilar</h1>
           {ProgressDots}
         </div>
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">

@@ -32,7 +32,7 @@ export default function ResponsePanel({
         className={`${locked ? 'pointer-events-none' : ''} w-full`}
       >
         <div className="space-y-6">
-          <h3 className="text-xl sm:text-2xl font-semibold text-neutral-900 dark:text-neutral-50 text-center">How would you like to respond?</h3>
+          <h3 className="text-xl sm:text-2xl font-semibold text-neutral-900 dark:text-neutral-50 text-center">Ready to Respond?</h3>
           <div className="flex items-center justify-center gap-6">
             <Button
               variant="secondary"

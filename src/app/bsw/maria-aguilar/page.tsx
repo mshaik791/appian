@@ -14,45 +14,39 @@ export default function MariaCaseDetailPage() {
   return (
     <div className="container mx-auto p-6 space-y-8">
       {/* Header / Hero */}
-      <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 text-white shadow-lg">
+      <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-r from-red-800 via-red-700 to-amber-600 text-white shadow-lg">
         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-white to-transparent" />
         <div className="relative p-6 md:p-8 flex items-start gap-5">
-          <Avatar className="h-16 w-16 ring-4 ring-white/20">
-            <AvatarImage src="/images/maria_aguilar.jpg" alt="Maria Aguilar" />
-            <AvatarFallback>MA</AvatarFallback>
-          </Avatar>
           <div className="flex-1">
             <div className="flex items-start gap-4">
               <div className="flex-1">
-                <h2 className="text-xl md:text-2xl font-semibold tracking-tight">About Your Client</h2>
+                <h2 className="text-xl md:text-2xl font-semibold tracking-tight">Case Scenario: Maria Aguilar</h2>
                 <p className="text-sm md:text-base text-white/90 mt-1 max-w-4xl">
                   Maria Aguilar (she/her) is a 33-year-old Latinx mother of Mateo (9). She is bilingual (Spanish/English, prefers Spanish), undocumented, and recently experienced the detention of her spouse (José) by ICE. She works variable hours as a residential cleaner (cash; no benefits) and lives with Mateo in a rent‑burdened one-bedroom LA apartment. Maria is deeply committed to Mateo, has strong work ethic and community ties, and shows resilience under pressure.
                 </p>
               </div>
-              <Button onClick={() => router.push('/bsw/maria-aguilar/session-1?caseId=maria-aguilar-s1')} className="bg-white text-indigo-700 hover:bg-white/90 shadow">
-                Start Experience
-              </Button>
+              {/* Right-side Maria image placeholder */}
+              <div className="hidden md:block">
+                <img src="/Maria.jpg" alt="Maria" className="h-24 w-24 rounded-xl object-cover ring-2 ring-white/40 shadow" />
+              </div>
             </div>
-            {/* Chips */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-5 text-xs">
-              <div className="flex flex-col"><span className="text-white/80">Age</span><Badge className="bg-white/15 text-white border-white/20">33</Badge></div>
-              <div className="flex flex-col"><span className="text-white/80">Pronouns</span><Badge className="bg-white/15 text-white border-white/20">She/Her</Badge></div>
-              <div className="flex flex-col"><span className="text-white/80">Ethnicity</span><Badge className="bg-white/15 text-white border-white/20">Latinx</Badge></div>
-              <div className="flex flex-col"><span className="text-white/80">Role</span><Badge className="bg-white/15 text-white border-white/20">Mother of Mateo (9)</Badge></div>
-              <div className="flex flex-col"><span className="text-white/80">Language</span><Badge className="bg-white/15 text-white border-white/20">Spanish preferred</Badge></div>
-              <div className="flex flex-col"><span className="text-white/80">Admission Date</span><Badge className="bg-white/15 text-white border-white/20">Oct 13, 2025</Badge></div>
-            </div>
+            {/* Removed demographic chips per request */}
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="overview" className="">
-        <TabsList className="rounded-lg bg-muted/60 p-1">
-          <TabsTrigger value="overview" className="rounded-md">Overview</TabsTrigger>
-          <TabsTrigger value="background" className="rounded-md">Background</TabsTrigger>
-          <TabsTrigger value="objectives" className="rounded-md">Objectives</TabsTrigger>
-          <TabsTrigger value="access" className="rounded-md">How to Access</TabsTrigger>
+      <Tabs defaultValue="instructions" className="">
+        <TabsList className="rounded-lg bg-muted/60 p-1 flex flex-wrap gap-1">
+          <TabsTrigger value="instructions" className="rounded-md transition-colors hover:bg-gradient-to-r hover:from-red-900 hover:to-red-700 hover:text-white">Before You Begin</TabsTrigger>
+          <TabsTrigger value="overview" className="rounded-md transition-colors hover:bg-gradient-to-r hover:from-red-900 hover:to-red-700 hover:text-white">Overview</TabsTrigger>
+          <TabsTrigger value="background" className="rounded-md transition-colors hover:bg-gradient-to-r hover:from-red-900 hover:to-red-700 hover:text-white">Case Brief</TabsTrigger>
+          
+          <TabsTrigger value="rubric" className="rounded-md transition-colors hover:bg-gradient-to-r hover:from-red-900 hover:to-red-700 hover:text-white">Rubric</TabsTrigger>
+          <TabsTrigger value="slo" className="rounded-md transition-colors hover:bg-gradient-to-r hover:from-red-900 hover:to-red-700 hover:text-white">Student Learning Objectives</TabsTrigger>
+          <TabsTrigger value="competencies" className="rounded-md transition-colors hover:bg-gradient-to-r hover:from-red-900 hover:to-red-700 hover:text-white">Competencies</TabsTrigger>
+          <TabsTrigger value="feedback" className="rounded-md transition-colors hover:bg-gradient-to-r hover:from-red-900 hover:to-red-700 hover:text-white">Feedback</TabsTrigger>
+          <TabsTrigger value="support" className="rounded-md transition-colors hover:bg-gradient-to-r hover:from-red-900 hover:to-red-700 hover:text-white">Student Support</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -138,58 +132,9 @@ export default function MariaCaseDetailPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="objectives">
-          <Card className="shadow">
-            <CardContent className="pt-6 space-y-6 text-sm text-muted-foreground">
-              <div>
-                <h4 className="font-medium text-foreground mb-1">Learning Objectives</h4>
-                <ul className="list-disc pl-5 space-y-1">
-                  <li>Establish rapport and explain confidentiality/limits in plain language.</li>
-                  <li>Identify at least three strengths and three needs in Maria's ecological context.</li>
-                  <li>Co‑design one short, feasible, trauma‑informed plan (sleep routine, school re‑entry, support contact).</li>
-                  <li>Distinguish information‑sharing from legal advice and document properly.</li>
-                  <li>Write a concise, neutral progress note with next steps and informed consent captured.</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-medium text-foreground mb-1">CSWE Competencies (focus)</h4>
-                <ul className="list-disc pl-5 space-y-1">
-                  <li>Ethical & Professional Behavior (confidentiality, boundaries, documentation)</li>
-                  <li>Engage Diversity & DEI (language preference, assumptions check)</li>
-                  <li>Advance Human Rights & Social Justice (rights/resources; empowerment)</li>
-                  <li>Engagement, Assessment, Intervention, Evaluation</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-medium text-foreground mb-1">Student Prompts</h4>
-                <ul className="list-disc pl-5 space-y-1">
-                  <li>"What feels most urgent today, so we can decide together where to start?"</li>
-                  <li>"How is Mateo sleeping and eating this week? What helps even a little?"</li>
-                  <li>"Would it be okay if we talk about school options that feel safe for you both?"</li>
-                  <li>"Who are the people or places that feel supportive right now?"</li>
-                  <li>"I can share information about community resources. Would you like that?"</li>
-                  <li>"How do you prefer we handle language—Spanish, English, or both?"</li>
-                  <li>"Can I explain confidentiality and its limits and check your questions?"</li>
-                  <li>"What would a good next 3–5 days look like for you and Mateo?"</li>
-                  <li>"How would you like me to help with the school—if at all?"</li>
-                  <li>"On a scale of 0–10, how confident do you feel about our plan today?"</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-medium text-foreground mb-1">Plan & Disposition (for reference)</h4>
-                <ul className="list-disc pl-5 space-y-1">
-                  <li>Evaluation: brief needs screen (food/rent, school coordination, legal aid info—no advice).</li>
-                  <li>Safety: door/phone plan; 2–3 coping skills (breathing, routine, neighbor check‑in).</li>
-                  <li>Collaborative care (with consent): school counselor re‑entry, vetted immigrant‑rights orgs, community supports.</li>
-                  <li>Disposition: safe to remain in community with supports and a written mini‑plan.</li>
-                  <li>Follow‑up: 1‑week check‑in; homework—bedtime routine, two calming activities, decide about school contact.</li>
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+        
 
-        <TabsContent value="access">
+        <TabsContent value="instructions">
           <Card className="shadow">
             <CardContent className="pt-6 space-y-4">
               <div>
@@ -228,6 +173,117 @@ export default function MariaCaseDetailPage() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="rubric">
+          <Card className="shadow">
+            <CardContent className="pt-6 space-y-4 text-sm text-muted-foreground">
+              <p>
+                This scenario is evaluated across four dimensions: Empathy & Engagement, Cultural Responsiveness, Ethics & Professionalism, and Assessment & Planning. Each is scored 1.0–5.0 with 0.5 increments. Overall reflects a weighted average.
+              </p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>Empathy & Engagement (30%): active listening, reflections, validation.</li>
+                <li>Cultural Responsiveness (25%): language preferences, honoring cultural context.</li>
+                <li>Ethics & Professionalism (15%): confidentiality limits, scope of role.</li>
+                <li>Assessment & Planning (30%): identifying needs/strengths and co‑creating next steps.</li>
+              </ul>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="slo">
+          <Card className="shadow">
+            <CardContent className="pt-6 space-y-6 text-sm text-muted-foreground">
+              <h4 className="font-medium text-foreground">Student Learning Objectives</h4>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>Establish rapport and explain confidentiality/limits in plain language.</li>
+                <li>Identify at least three strengths and three needs in Maria's ecological context.</li>
+                <li>Co‑design one short, feasible, trauma‑informed plan (sleep routine, school re‑entry, support contact).</li>
+                <li>Distinguish information‑sharing from legal advice and document properly.</li>
+                <li>Write a concise, neutral progress note with next steps and informed consent captured.</li>
+              </ul>
+
+              <div>
+                <h4 className="font-medium text-foreground mb-1">CSWE Competencies (focus)</h4>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>Ethical & Professional Behavior (confidentiality, boundaries, documentation)</li>
+                  <li>Engage Diversity & DEI (language preference, assumptions check)</li>
+                  <li>Advance Human Rights & Social Justice (rights/resources; empowerment)</li>
+                  <li>Engagement, Assessment, Intervention, Evaluation</li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 className="font-medium text-foreground mb-1">Student Prompts</h4>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>"What feels most urgent today, so we can decide together where to start?"</li>
+                  <li>"How is Mateo sleeping and eating this week? What helps even a little?"</li>
+                  <li>"Would it be okay if we talk about school options that feel safe for you both?"</li>
+                  <li>"Who are the people or places that feel supportive right now?"</li>
+                  <li>"I can share information about community resources. Would you like that?"</li>
+                  <li>"How do you prefer we handle language—Spanish, English, or both?"</li>
+                  <li>"Can I explain confidentiality and its limits and check your questions?"</li>
+                  <li>"What would a good next 3–5 days look like for you and Mateo?"</li>
+                  <li>"How would you like me to help with the school—if at all?"</li>
+                  <li>"On a scale of 0–10, how confident do you feel about our plan today?"</li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 className="font-medium text-foreground mb-1">Plan & Disposition (for reference)</h4>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>Evaluation: brief needs screen (food/rent, school coordination, legal aid info—no advice).</li>
+                  <li>Safety: door/phone plan; 2–3 coping skills (breathing, routine, neighbor check‑in).</li>
+                  <li>Collaborative care (with consent): school counselor re‑entry, vetted immigrant‑rights orgs, community supports.</li>
+                  <li>Disposition: safe to remain in community with supports and a written mini‑plan.</li>
+                  <li>Follow‑up: 1‑week check‑in; homework—bedtime routine, two calming activities, decide about school contact.</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="competencies">
+          <Card className="shadow">
+            <CardContent className="pt-6 space-y-4 text-sm text-muted-foreground">
+              <h4 className="font-medium text-foreground">CSWE Competencies (focus)</h4>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>Ethical & Professional Behavior</li>
+                <li>Engage Diversity & Difference</li>
+                <li>Advance Human Rights & Social Justice</li>
+                <li>Engagement, Assessment, Intervention, Evaluation</li>
+              </ul>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="feedback">
+          <Card className="shadow">
+            <CardContent className="pt-6 space-y-4 text-sm text-muted-foreground">
+              <h4 className="font-medium text-foreground">Feedback</h4>
+              <p>
+                After submitting your responses, you will receive an AI‑generated evaluation summary along with competency scores and suggestions for improvement. Faculty may also provide additional feedback.
+              </p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>View your results on the Results page after grading completes.</li>
+                <li>Use suggestions to plan your next practice attempt.</li>
+                <li>Reach out to your instructor if you have questions about your evaluation.</li>
+              </ul>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="support">
+          <Card className="shadow">
+            <CardContent className="pt-6 space-y-4 text-sm text-muted-foreground">
+              <p>If you encounter challenges, you can:</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>Review the Instructions tab for step‑by‑step guidance</li>
+                <li>Use headphones and a quiet space for recording clarity</li>
+                <li>Contact your instructor for accommodations or accessibility support</li>
+              </ul>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
 
       {/* Footer actions */}
@@ -236,9 +292,9 @@ export default function MariaCaseDetailPage() {
           <Button variant="outline">Back to Cases</Button>
         </Link>
         <div className="flex gap-2">
-          <Button variant="outline">Save Draft</Button>
-          <Button variant="outline">Export Note (PDF)</Button>
-          <Button className="bg-amber-500 hover:bg-amber-600 text-white">Start Simulation</Button>
+          <Button onClick={() => router.push('/bsw/maria-aguilar/session-1?caseId=maria-aguilar-s1')} className="bg-gradient-to-r from-red-700 via-red-600 to-amber-600 hover:from-red-800 hover:via-red-700 hover:to-amber-700 text-white shadow px-6 py-3 text-base md:text-lg">
+            Launch Scenario
+          </Button>
         </div>
       </div>
     </div>
