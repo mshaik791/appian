@@ -9,8 +9,8 @@ export const gradingResultSchema = z.object({
     overall: z.number().min(1).max(5),
   }),
   competencyScores: z.record(z.string(), z.number().min(1).max(5)),
-  evidenceQuotes: z.array(z.string()).min(3).max(8),
-  summary: z.string().min(100).max(200),
+  evidenceQuotes: z.array(z.string()).min(1).max(8),
+  summary: z.string().min(100).max(800),
   suggestions: z.array(z.string()).min(3).max(6),
 });
 

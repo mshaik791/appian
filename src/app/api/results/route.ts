@@ -51,6 +51,26 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Determine case title - check if it's a database ID or a known case identifier
+    let caseTitle = CASE_TITLES[caseId];
+    if (!caseTitle) {
+      // Try to get case title from database
+      try {
+        const caseData = await prisma.case.findUnique({
+          where: { id: caseId },
+          include: { personas: true }
+        });
+        if (caseData?.personas?.some(p => p.name.includes('Parwin'))) {
+          caseTitle = 'Parwin - Clinical Assessment';
+        } else {
+          caseTitle = caseData?.title || 'Unknown Case';
+        }
+      } catch (error) {
+        console.warn('Could not determine case title:', error);
+        caseTitle = 'Unknown Case';
+      }
+    }
+
     // Parse and validate rubric JSON
     let gradingResult;
     try {
@@ -73,7 +93,7 @@ export async function GET(request: NextRequest) {
     const response = {
       case: {
         id: caseId,
-        title: CASE_TITLES[caseId] || caseId,
+        title: caseTitle,
         competencyCodes: Object.keys(gradingResult.competencyScores),
         competencyTitles,
       },

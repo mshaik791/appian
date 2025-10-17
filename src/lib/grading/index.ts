@@ -115,6 +115,7 @@ export async function evaluateSession({
     grading = gradingResultSchema.parse(parsed);
   } catch (error) {
     console.error('Failed to parse LLM response:', response.content);
+    console.error('Parse/validation error:', error);
     throw new Error('Invalid grading response format');
   }
 

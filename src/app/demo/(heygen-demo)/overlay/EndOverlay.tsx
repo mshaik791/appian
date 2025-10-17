@@ -131,8 +131,8 @@ export default function EndOverlay() {
       if (sid) requestBody.simSessionId = sid;
       requestBody.transcriptText = transcriptText;
 
-      // POST to feedback API
-      const response = await fetch('/api/feedback', {
+      // POST to MSW grading API
+      const response = await fetch('/api/msw/grade', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

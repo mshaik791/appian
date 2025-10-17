@@ -36,8 +36,8 @@ You must return ONLY valid JSON matching exactly this TypeScript type:
     overall: number                  // 1.0-5.0
   },
   competencyScores: Record<string, number>, // competency codes -> 1.0-5.0
-  evidenceQuotes: string[],          // 3-8 verbatim quotes from transcript
-  summary: string,                   // 100-200 words
+  evidenceQuotes: string[],          // 1-8 verbatim quotes from transcript
+  summary: string,                   // 300-800 words
   suggestions: string[]              // 3-6 actionable bullets
 }
 
@@ -75,7 +75,7 @@ STUDENT RESPONSE TRANSCRIPT:
 ${transcriptFormatted}
 
 EVALUATION INSTRUCTIONS:
-Rate each competency 1.0-5.0 based on evidence in the transcript. Provide specific quotes that demonstrate strengths or areas for improvement. Focus on clinical reasoning, cultural sensitivity, ethical practice, and client-centered care.
+Rate each competency 1.0-5.0 based on evidence in the transcript. Provide 1-8 specific quotes that demonstrate strengths or areas for improvement. Write a comprehensive summary (100-800 characters) focusing on clinical reasoning, cultural sensitivity, ethical practice, and client-centered care.
 
 Return ONLY the JSON object as specified above.`;
 

@@ -4,29 +4,25 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 interface EvaluationData {
+  case: {
+    id: string;
+    title: string;
+    competencyCodes: string[];
+    competencyTitles: Record<string, string>;
+  };
   evaluation: {
-    empathy: number;
-    culturalResponse: number;
-    ethicsAwareness: number;
-    activeListening: number;
+    scores: {
+      empathyEngagement: number;
+      culturalResponsiveness: number;
+      ethicsProfessionalism: number;
+      assessmentPlanning: number;
+      overall: number;
+    };
+    competencyScores: Record<string, number>;
+    evidenceQuotes: string[];
     summary: string;
+    suggestions: string[];
     createdAt: string;
-    caseTitle: string;
-    competencyName: string;
-  };
-  evidence: {
-    empathy: string[];
-    culturalResponse: string[];
-    ethicsAwareness: string[];
-    activeListening: string[];
-  };
-  engagement?: {
-    attentionPctAvg: number;
-    smilesPerMinAvg: number;
-    nodsPerMinAvg: number;
-    laughterCount: number;
-    valenceAvg: number;
-    arousalAvg: number;
   };
 }
 
@@ -121,12 +117,12 @@ export default function ResultsPage() {
     );
   }
 
-  const { evaluation, evidence, engagement } = data;
+  const { evaluation } = data;
   const scores = [
-    { name: 'Empathy', score: evaluation.empathy, evidence: evidence.empathy },
-    { name: 'Cultural Response', score: evaluation.culturalResponse, evidence: evidence.culturalResponse },
-    { name: 'Ethics Awareness', score: evaluation.ethicsAwareness, evidence: evidence.ethicsAwareness },
-    { name: 'Active Listening', score: evaluation.activeListening, evidence: evidence.activeListening },
+    { name: 'Empathy & Engagement', score: evaluation.scores.empathyEngagement, evidence: evaluation.evidenceQuotes[0] || '' },
+    { name: 'Cultural Responsiveness', score: evaluation.scores.culturalResponsiveness, evidence: evaluation.evidenceQuotes[1] || '' },
+    { name: 'Ethics & Professionalism', score: evaluation.scores.ethicsProfessionalism, evidence: evaluation.evidenceQuotes[2] || '' },
+    { name: 'Assessment & Planning', score: evaluation.scores.assessmentPlanning, evidence: evaluation.evidenceQuotes[3] || '' },
   ];
 
   return (
@@ -139,8 +135,8 @@ export default function ResultsPage() {
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
                 Simulation Results
               </h1>
-              <p className="text-lg text-gray-600 mb-1">{evaluation.caseTitle}</p>
-              <p className="text-sm text-blue-600 font-medium">{evaluation.competencyName}</p>
+              <p className="text-lg text-gray-600 mb-1">{data.case.title}</p>
+              <p className="text-sm text-blue-600 font-medium">MSW Clinical Assessment</p>
             </div>
             <button
               onClick={handleContinueToReflection}
@@ -180,46 +176,29 @@ export default function ResultsPage() {
         {/* Evidence */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Evidence</h2>
-          <div className="space-y-6">
-            {scores.map((item) => (
-              <div key={item.name}>
-                <h3 className="font-medium text-gray-900 mb-3">{item.name}</h3>
-                <div className="space-y-2">
-                  {item.evidence.length > 0 ? (
-                    item.evidence.map((quote, index) => (
-                      <div key={index} className="bg-gray-50 rounded-lg p-3 border-l-4 border-blue-500">
-                        <p className="text-gray-700 italic">"{quote}"</p>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-gray-500 italic">—</p>
-                  )}
-                </div>
+          <div className="space-y-4">
+            {evaluation.evidenceQuotes.map((quote, index) => (
+              <div key={index} className="bg-gray-50 rounded-lg p-3 border-l-4 border-blue-500">
+                <p className="text-gray-700 italic">"{quote}"</p>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Engagement Snapshot (if available) */}
-        {engagement && (
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Engagement Snapshot</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-blue-600">{Math.round(engagement.attentionPctAvg)}%</p>
-                <p className="text-sm text-gray-600">Attention</p>
+        {/* Suggestions */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Suggestions for Improvement</h2>
+          <div className="space-y-3">
+            {evaluation.suggestions.map((suggestion, index) => (
+              <div key={index} className="flex items-start space-x-3">
+                <div className="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-0.5">
+                  <span className="text-blue-600 text-sm font-medium">{index + 1}</span>
+                </div>
+                <p className="text-gray-700">{suggestion}</p>
               </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-green-600">{engagement.smilesPerMinAvg.toFixed(1)}</p>
-                <p className="text-sm text-gray-600">Smiles/min</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-purple-600">{engagement.laughterCount}</p>
-                <p className="text-sm text-gray-600">Laughter</p>
-              </div>
-            </div>
+            ))}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

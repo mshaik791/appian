@@ -74,26 +74,6 @@ async function main() {
     }
   })
 
-  const case1 = await prisma.case.create({
-    data: {
-      title: 'First-Gen Undergraduate Advisee',
-      description: 'Student balancing work, remittances, and course load; first in family at college.',
-      culturalContextJson: { 
-        identity: ['Latinx', 'first-gen', 'bilingual (Eng/Span)'], 
-        values: ['family obligation', 'respect'], 
-        languageNotes: ['occasionally code-switches'] 
-      },
-      objectivesJson: ['Build rapport', 'Explore stressors', 'Co-create an action plan'],
-      learningObjectivesJson: [
-        'Demonstrate active listening skills to build trust with first-generation college students',
-        'Apply cultural humility when discussing family obligations and financial pressures',
-        'Practice collaborative goal-setting techniques to create realistic academic plans'
-      ],
-      competencyId: engagementCompetency.id,
-      rubricId: rubric.id,
-      createdBy: faculty.id
-    }
-  })
 
   const case2 = await prisma.case.create({
     data: {
@@ -139,15 +119,6 @@ async function main() {
 
   await prisma.persona.createMany({
     data: [
-      {
-        caseId: case1.id,
-        name: 'María G.',
-        backgroundJson: { age: 19, major: 'Sociology', workHours: 24 },
-        voiceId: 'voice_en_female_01',
-        avatarId: 'heygen_preset_01',
-        promptTemplate: 'You are María, a first-gen Latinx undergrad advisee...',
-        safetyJson: { blockedTopics: ['diagnosis', 'legal advice'] }
-      },
       {
         caseId: case2.id,
         name: 'Parwin A.',
@@ -274,8 +245,8 @@ async function main() {
     student: student.email,
     admin: admin.email,
     competencies: [engagementCompetency.name, ethicsCompetency.name, diversityCompetency.name],
-    cases: 3 + 1,
-    personas: 3
+    cases: 2 + 1,
+    personas: 2
   })
 }
 
